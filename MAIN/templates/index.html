@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+
+
+{% block head %}
+    <style>
+        #mainheader{
+            background-image: linear-gradient(rgba(0, 0, 0, 0.527), rgba(0, 0, 0, 0.5)), url({{ url_for('static', filename='media/index/jumbotron.jpg') }});
+            background-size: cover;
+            background-color: black;
+        
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex align-items-center" id="mainheader" style="height: 500px;">
+    <div class="p-5"> 
+        <h1 style="color: #BEEE62">Explore Responsibly, Travel Sustainably</h1>
+        <br>
+        <h4 style="color: #BEEE62">Search by Destination</h4>
+        <form class="my-2 my-lg-0">
+            <input class="form-control" type="search" placeholder="Eg. Singapore" aria-label="Search">
+            <!-- <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button> -->
+        </form>
+    </div>
+</div>
+<div>
+
+
+
+</div>
+
+{% endblock %}
+
