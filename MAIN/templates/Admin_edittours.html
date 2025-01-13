@@ -41,8 +41,9 @@
                         <td>${{ "%.2f"|format(departure.price) }}</td>
                         <td>{{ departure.availability }} seats</td>
                         <td>
-                            <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editDepartureModal{{ departure.date }}">Edit</button>
                             <form method="post">
+                            <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editDepartureModal{{ departure.date }}">Edit</button>
+                            
                                 <button type="submit" name="delete_departure" value="{{ departure.date }}" class="btn btn-danger btn-sm">Delete</button>
                             </form>
                             
