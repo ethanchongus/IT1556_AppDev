@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}View Tours{% endblock %}
+
+
+{% block head %}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-3">
+    <h3>View Tours</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+
+                <th>Name</th>
+                <th>Description</th>
+                <th>Departures</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            {% for tour in tours %}
+            <tr>
+
+                <td>{{ tour.name }}</td>
+                <td>{{ tour.description }}</td>
+                <td>{{ tour.departures|length }}</td>
+                
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock %}
+

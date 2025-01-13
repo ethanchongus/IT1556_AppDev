@@ -5,14 +5,21 @@ from activities import *
 app = Flask(__name__)
 app.secret_key = 'ecoventures'
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
 
 # ACTIVITIES (ETHAN)
+@app.route('/tours')
+def user_viewtours():
+
+    return render_template('user_viewtours.html',tours=toursdict)
+
 @app.route('/admin/activities/', methods=['GET', 'POST'])
 def admin_events():
+
     if request.method == 'POST':
         if 'add_event' in request.form:
             name = request.form['event_name']
@@ -29,6 +36,7 @@ def admin_events():
 
 @app.route('/admin/activities/edit/<tour_id>', methods=['GET', 'POST'])
 def edit_tour(tour_id):
+
     tour = None
     for t in toursdict:
         # print(f"checking {tour_id} against {t.tour_id}")
@@ -63,49 +71,18 @@ def edit_tour(tour_id):
                     departure.availability = int(request.form['edit_departure_availability'])
                     print(f"Updated departure: {departure}")
                     break
-
+        
         return redirect(url_for('edit_tour', tour_id=tour_id))
 
     return render_template('Admin_edittours.html', tour=tour)
 
-
-# create_event("EcoVenture Tour", "Explore the best of Yishun.")
-create_event("Tokyo Highlights", "Explore the best of Tokyo in 7 days.")
-create_event("Kyoto Serenity", "Discover the tranquil temples of Kyoto.")
-create_event("Osaka Nightlife", "Experience the vibrant nightlife of Osaka.")
-
-
-# Create a tour
-test_tour = tour("EcoVenture Tour", "Explore the best of Yishun.")
-test_tour.generate_tourID()
-toursdict.append(test_tour)
-
-# Create departures
-departure1 = departuredate("2024-09-01", 1500, 10)
-departure2 = departuredate("2024-09-15", 1600, 5)
-
-# Add departures to the tour
-test_tour.add_departure(departure1)
-test_tour.add_departure(departure2)
+generateSampleTours()
 
 
 
 
 # ===============================================
 # ???? 
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
