@@ -50,18 +50,25 @@ def delete_event(tour_id):
 
 
 
-# # Create a tour
-# test_tour = tour("EcoVenture Tour", "Explore the best of Yishun.")
-# test_tour.generate_tourID()
-# toursdict.append(test_tour)
+def generateSampleTours():
+    # create_event("EcoVenture Tour", "Explore the best of Yishun.")
+    create_event("Tokyo Highlights", "Explore the best of Tokyo in 7 days.")
+    create_event("Kyoto Serenity", "Discover the tranquil temples of Kyoto.")
+    create_event("Osaka Nightlife", "Experience the vibrant nightlife of Osaka.")
 
-# # Create departures
-# departure1 = departuredate("2024-09-01", 1500, 10)
-# departure2 = departuredate("2024-09-15", 1600, 5)
+    # Create a tour manually
+    test_tour = tour("EcoVenture Tour", "Explore the best of Yishun.")
+    test_tour.generate_tourID()
+    toursdict.append(test_tour)
 
-# # Add departures to the tour
-# test_tour.add_departure(departure1)
-# test_tour.add_departure(departure2)
+    # Create departures
+    departure1 = departuredate("2024-09-01", 1500, 10)
+    departure2 = departuredate("2024-09-15", 1600, 5)
+
+    # Add departures to the tour
+    test_tour.add_departure(departure1)
+    test_tour.add_departure(departure2)
+
+        
 
 
-# delete_event(test_tour.tour_id)

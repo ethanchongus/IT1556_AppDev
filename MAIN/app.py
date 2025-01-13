@@ -6,6 +6,7 @@ app = Flask(__name__)
 app.secret_key = 'ecoventures'
 
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -17,8 +18,14 @@ def user_viewtours():
 
     return render_template('user_viewtours.html',tours=toursdict)
 
+@app.route('/tours')
+def user_viewtours():
+
+    return render_template('user_viewtours.html',tours=toursdict)
+
 @app.route('/admin/activities/', methods=['GET', 'POST'])
 def admin_events():
+
 
     if request.method == 'POST':
         if 'add_event' in request.form:
@@ -36,6 +43,7 @@ def admin_events():
 
 @app.route('/admin/activities/edit/<tour_id>', methods=['GET', 'POST'])
 def edit_tour(tour_id):
+
 
     tour = None
     for t in toursdict:
@@ -72,10 +80,12 @@ def edit_tour(tour_id):
                     print(f"Updated departure: {departure}")
                     break
         
+        
         return redirect(url_for('edit_tour', tour_id=tour_id))
 
     return render_template('Admin_edittours.html', tour=tour)
 
+generateSampleTours()
 generateSampleTours()
 
 
@@ -83,6 +93,7 @@ generateSampleTours()
 
 # ===============================================
 # ???? 
+
 
 
 
