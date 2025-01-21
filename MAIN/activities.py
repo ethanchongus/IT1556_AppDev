@@ -1,9 +1,29 @@
 import uuid
 import shelve
-toursdict = []
+import os
+
+# Open the shelve file to store tours persistently
+shelve_db = 'tour_data'
+
+# Load tours from shelve at the start
+def load_tours():
+    if not os.path.exists(shelve_db + '.db'):  # Ensure the shelve database exists
+        return []
+    try:
+        with shelve.open(shelve_db) as db:
+            return db.get('tours', [])
+    except AttributeError as e:
+        print(f"Error loading tours: {e}. Clearing shelve database...")
+        os.remove(shelve_db + '.db')  # Clear the corrupted shelve database
+        return []  # Return an empty list
 
 
+# Save tours to shelve
+def save_tours():
+    with shelve.open(shelve_db) as db:
+        db['tours'] = tourlist
 
+tourlist = load_tours()
 
 
 
@@ -45,34 +65,38 @@ class departuredate:
 def create_event(name,desc):
     t = tour(name,desc)
     t.generate_tourID()
-    toursdict.append(t)
+    tourlist.append(t)
+    save_tours()
 
 def delete_event(tour_id):
-  for i, tour in enumerate(toursdict):
+  for i, tour in enumerate(tourlist):
     if tour.tour_id == tour_id:
       print(f"Tour with ID {tour_id} deleted.")
-      toursdict.pop(i)
+      tourlist.pop(i)
+      save_tours()
 
 
 
 def generateSampleTours():
-    # create_event("EcoVenture Tour", "Explore the best of Yishun.")
-    create_event("Tokyo Highlights", "Explore the best of Tokyo in 7 days.")
-    create_event("Kyoto Serenity", "Discover the tranquil temples of Kyoto.")
-    create_event("Osaka Nightlife", "Experience the vibrant nightlife of Osaka.")
+    if not tourlist:
+        # create_event("EcoVenture Tour", "Explore the best of Yishun.")
+        create_event("Tokyo Highlights", "Explore the best of Tokyo in 7 days.")
+        create_event("Kyoto Serenity", "Discover the tranquil temples of Kyoto.")
+        create_event("Osaka Nightlife", "Experience the vibrant nightlife of Osaka.")
 
-    # Create a tour manually
-    test_tour = tour("EcoVenture Tour", "Explore the best of Yishun.")
-    test_tour.generate_tourID()
-    toursdict.append(test_tour)
+        # Create a tour manually
+        test_tour = tour("EcoVenture Tour", "Explore the best of Yishun.")
+        test_tour.generate_tourID()
+        tourlist.append(test_tour)
 
-    # Create departures
-    departure1 = departuredate("2024-09-01", 1500, 10)
-    departure2 = departuredate("2024-09-15", 1600, 5)
+        # Create departures
+        departure1 = departuredate("2024-09-01", 1500, 10)
+        departure2 = departuredate("2024-09-15", 1600, 5)
 
-    # Add departures to the tour
-    test_tour.add_departure(departure1)
-    test_tour.add_departure(departure2)
+        # Add departures to the tour
+        test_tour.add_departure(departure1)
+        test_tour.add_departure(departure2)
+        save_tours()
 
         
 
