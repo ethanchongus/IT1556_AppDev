@@ -12,6 +12,7 @@ class CreateUserForm(Form):
 
 
 class CreateCustomerForm(Form):
+    name = StringField('Username', [validators.Length(min=1, max=150), validators.DataRequired()])
     email = EmailField("Email", [validators.DataRequired()])
     password = PasswordField("Password", [validators.DataRequired()])
     number = StringField("Phone Number", [validators.Length(min=8, max=8), validators.DataRequired()])
