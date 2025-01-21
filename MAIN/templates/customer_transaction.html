@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Customer Transaction{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Enter Payment Details</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+    <div class="mb-3">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5>Payment Information</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/transaction/" method="POST">
+                        <!-- Cardholder Name -->
+                        <div class="mb-3">
+                            <label for="cardholder_name" class="form-label">Cardholder Name</label>
+                            <input type="text" id="cardholder_name" name="cardholder_name" class="form-control" required>
+                        </div>
+
+                        <!-- Card Number -->
+                        <div class="mb-3">
+                            <label for="card_number" class="form-label">Card Number</label>
+                            <input type="text" id="card_number" name="card_number" class="form-control" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" required>
+                        </div>
+
+                        <!-- Expiration Date -->
+                        <div class="mb-3">
+                            <label for="expiration_date" class="form-label">Expiration Date</label>
+                            <input type="text" id="expiration_date" name="expiration_date" class="form-control" placeholder="MM/YY" maxlength="5" required>
+                        </div>
+
+                        <!-- CVV -->
+                        <div class="mb-3">
+                            <label for="cvv" class="form-label">CVV</label>
+                            <input type="text" id="cvv" name="cvv" class="form-control" placeholder="XXX" maxlength="3" required>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-success w-100">Submit Payment</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-format card number input
+    document.getElementById('card_number').addEventListener('input', function (e) {
+        const input = e.target.value.replace(/\D/g, ''); // Remove non-digits
+        e.target.value = input.match(/.{1,4}/g)?.join(' ') || ''; // Add spaces every 4 digits
+    });
+
+    // Auto-format expiration date input
+    document.getElementById('expiration_date').addEventListener('input', function (e) {
+        const input = e.target.value.replace(/\D/g, ''); // Remove non-digits
+        e.target.value = input.length > 2 ? input.slice(0, 2) + '/' + input.slice(2) : input;
+    });
+</script>
+{% endblock %}
