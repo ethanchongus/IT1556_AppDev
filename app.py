@@ -259,5 +259,6 @@ def admin_login():
 
     return render_template('adminlogin.html', form=form)
 if __name__ == '__main__':
+    # generateSampleTours()
     app.run(debug=True)
 

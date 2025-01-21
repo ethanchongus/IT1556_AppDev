@@ -2,7 +2,7 @@ import uuid
 import shelve
 
 
-shelve_db = 'tour_data'
+shelve_db = 'database/tour_data'
 
 # Tour Class
 class tour:
