@@ -21,7 +21,7 @@ def user_viewtours():
 @app.route('/tours')
 def user_viewtours():
 
-    return render_template('user_viewtours.html',tours=toursdict)
+    return render_template('user_viewtours.html',tours=tourlist)
 
 @app.route('/admin/activities/', methods=['GET', 'POST'])
 def admin_events():
@@ -39,14 +39,14 @@ def admin_events():
        
         return redirect(url_for('admin_events'))
 
-    return render_template('ADMIN_activities.html', tours=toursdict)
+    return render_template('ADMIN_activities.html', tours=tourlist)
 
 @app.route('/admin/activities/edit/<tour_id>', methods=['GET', 'POST'])
 def edit_tour(tour_id):
 
 
     tour = None
-    for t in toursdict:
+    for t in tourlist:
         # print(f"checking {tour_id} against {t.tour_id}")
         if str(tour_id) == str(t.tour_id):
             tour = t
@@ -80,7 +80,7 @@ def edit_tour(tour_id):
                     print(f"Updated departure: {departure}")
                     break
         
-        
+        save_tours()
         return redirect(url_for('edit_tour', tour_id=tour_id))
 
     return render_template('Admin_edittours.html', tour=tour)
@@ -103,4 +103,5 @@ generateSampleTours()
 
 
 if __name__ == '__main__':
+    # generateSampleTours()
     app.run(debug=True)
