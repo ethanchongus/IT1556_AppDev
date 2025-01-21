@@ -76,5 +76,5 @@ def edit_tour(tour_id):
 
 
 if __name__ == '__main__':
-    generateSampleTours()
+    # generateSampleTours()
     app.run(debug=True)
