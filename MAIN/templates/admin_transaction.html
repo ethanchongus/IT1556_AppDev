@@ -1,0 +1,94 @@
+{% extends "admin_base.html" %}
+{% block title %}Admin Transactions{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Transaction Management</h1>
+
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h5>Transactions</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-hover">
+                <thead class="table-success">
+                    <tr>
+                        <th>#</th>
+                        <th>Cardholder Name</th>
+                        <th>Card Number</th>
+                        <th>Expiration Date</th>
+                        <th>CVV</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ transaction.cardholder_name }}</td>
+                        <td>{{ transaction.card_number | format_card_number }}</td>
+                        <td>{{ transaction.expiration_date }}</td>
+                        <td>{{ transaction.cvv }}</td>
+                        <td>
+                            <!-- Update Button -->
+                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#updateModal{{ loop.index0 }}">Update</button>
+
+                            <!-- Delete Button -->
+                            <form action="/admin/transaction/delete/{{ loop.index0 }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <!-- Update Modal -->
+                    <div class="modal fade" id="updateModal{{ loop.index0 }}" tabindex="-1" aria-labelledby="updateModalLabel{{ loop.index0 }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form action="/admin/transaction/update/{{ loop.index0 }}" method="POST">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="updateModalLabel{{ loop.index0 }}">Update Transaction</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="cardholder_name" class="form-label">Cardholder Name</label>
+                                            <input type="text" name="cardholder_name" class="form-control" value="{{ transaction.cardholder_name }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="card_number" class="form-label">Card Number</label>
+                                            <input type="text" name="card_number" class="form-control card-number-input" value="{{ transaction.card_number | format_card_number }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="expiration_date" class="form-label">Expiration Date</label>
+                                            <input type="text" name="expiration_date" class="form-control" value="{{ transaction.expiration_date }}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="cvv" class="form-label">CVV</label>
+                                            <input type="text" name="cvv" class="form-control" value="{{ transaction.cvv }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-success">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-format card number input for modals
+    document.querySelectorAll('.card-number-input').forEach(input => {
+        input.addEventListener('input', function (e) {
+            const value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+            e.target.value = value.match(/.{1,4}/g)?.join(' ') || ''; // Add spaces every 4 digits
+        });
+    });
+</script>
+{% endblock %}
