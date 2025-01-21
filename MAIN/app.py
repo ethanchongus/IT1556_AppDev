@@ -101,27 +101,34 @@ def delete_user(id):
 
     return redirect(url_for('retrieve_users'))
 
-@app.route('/Registration', methods=['GET', 'POST'])
-def create_user():
-    create_user_form = CreateCustomerForm(request.form)
-    if request.method == 'POST' and create_user_form.validate():
-        users_dict = {}
-        db = shelve.open('Customer.db', 'c')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register_customer():  # renamed to avoid conflict
+    create_customer_form = CreateCustomerForm(request.form)
+    if request.method == 'POST' and create_customer_form.validate():
+        customers_dict = {}
+        db = shelve.open('customer.db', 'c')
 
         try:
-            users_dict = db['Customer']
+            customers_dict = db['Customers']
         except:
-            print("Error in retrieving Customers from user.db.")
+            print("Error in retrieving Customers from customer.db.")
 
-        customer = Customer.Customer(create_user_form.name.data, create_user_form.email.data, create_user_form.password.data, create_user_form.number.data)
-        users_dict[Customer.get_customer_id()] = customer
-        db['Users'] = users_dict
+        customer = Customer.Customer(
+            create_customer_form.name.data,
+            create_customer_form.email.data,
+            create_customer_form.password.data,
+            create_customer_form.confirm_password.data,
+            create_customer_form.number.data
+        )
+        customers_dict[customer.get_customer_id()] = customer
+        db['Customers'] = customers_dict
 
         db.close()
 
-    return render_template('register.html', form=create_user_form)
+        return redirect(url_for('index.html'))
 
-
+    return render_template('register.html', form=create_customer_form)
 
 
 if __name__ == '__main__':

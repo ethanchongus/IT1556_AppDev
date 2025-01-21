@@ -1,5 +1,6 @@
 from wtforms import Form, StringField, RadioField, SelectField, TextAreaField, validators
-from wtforms.fields import EmailField, DateField , PasswordField
+from wtforms.fields import EmailField , PasswordField
+from wtforms.validators import Email
 
 class CreateUserForm(Form):
     first_name = StringField('First Name', [validators.Length(min=1, max=150), validators.DataRequired()])
@@ -12,8 +13,11 @@ class CreateUserForm(Form):
 
 
 class CreateCustomerForm(Form):
-    name = StringField('Username', [validators.Length(min=1, max=150), validators.DataRequired()])
-    email = EmailField("Email", [validators.DataRequired()])
-    password = PasswordField("Password", [validators.DataRequired()])
-    number = StringField("Phone Number", [validators.Length(min=8, max=8), validators.DataRequired()])
-
+    name = StringField('Name', [validators.Length(min=1, max=150), validators.DataRequired()])
+    email = EmailField('Email', [validators.Email(), validators.DataRequired()])
+    password = PasswordField('Password', [validators.Length(min=6), validators.DataRequired()])
+    confirm_password = PasswordField('Confirm Password', [
+        validators.DataRequired(),
+        validators.EqualTo('password', message='Passwords must match')
+    ])
+    number = StringField('Phone Number', [validators.Length(min=8, max=8), validators.DataRequired()])
