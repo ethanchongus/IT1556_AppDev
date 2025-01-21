@@ -1,13 +1,17 @@
-class Customer
+class Customer:
     count_id = 0
 
     def __init__(self, name , email , password , number):
         Customer.count_id += 1
+        self.__customer_id =   Customer.count_id
         self.__name = name
         self.__email = email
         self.__password = password
         self.__number = number
 
+
+    def get_customer_id(self):
+        return self.__customer_id
     def get_name(self):
         return self.__name
 
@@ -29,3 +33,6 @@ class Customer
 
     def set_number(self,number):
         self.__password = number
+
+    def set_customer_id(self,customer_id):
+        self.__customer_id = customer_id
