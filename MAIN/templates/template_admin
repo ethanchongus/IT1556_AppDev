@@ -1,0 +1,14 @@
+{% extends "admin_base.html" %}
+{% block title %}ADMIN Panel{% endblock %}
+
+
+{% block head %}
+
+{% endblock %}
+
+{% block content %}
+
+
+
+{% endblock %}
+
