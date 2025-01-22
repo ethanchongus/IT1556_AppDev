@@ -1,7 +1,6 @@
 {% extends "base_admin.html" %}
 {% block title %}Edit Tours{% endblock %}
 
-
 {% block head %}
 
 {% endblock %}
@@ -31,6 +30,7 @@
                         <th>Date</th>
                         <th>Price</th>
                         <th>Availability</th>
+                        <th>Customers</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -41,9 +41,11 @@
                         <td>${{ "%.2f"|format(departure.price) }}</td>
                         <td>{{ departure.availability }} seats</td>
                         <td>
+                            <a href="{{ url_for('view_customers', tour_id=tour.tour_id, departure_date=departure.date) }}" class="btn btn-info btn-sm mt-1">View</a>
+                        </td>
+                        <td>
                             <form method="post">
-                            <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editDepartureModal{{ departure.date }}">Edit</button>
-                            
+                                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editDepartureModal{{ departure.date }}">edit</button>
                                 <button type="submit" name="delete_departure" value="{{ departure.date }}" class="btn btn-danger btn-sm">Delete</button>
                             </form>
                             
@@ -105,6 +107,4 @@
     </form>
 </div>
 
-
 {% endblock %}
-
