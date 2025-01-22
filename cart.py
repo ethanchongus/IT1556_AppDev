@@ -1,4 +1,4 @@
-from flask import Blueprint, request, session, render_template, redirect, url_for, flash
+from flask import Blueprint, session, request, render_template, redirect, url_for, flash
 
 cart_bp = Blueprint('cart', __name__)
 
@@ -21,10 +21,9 @@ def add_to_cart():
         "destination": destination,
     }
 
-    # Add item to the session cart
     cart = session.get('cart', [])
     cart.append(item)
     session['cart'] = cart
 
-    flash(f"{activity_name} added to your cart!", "success")
+    flash(f"Added {activity_name} to your cart!", "success")
     return redirect(url_for('activities'))

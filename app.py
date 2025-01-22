@@ -7,6 +7,10 @@ app = Flask(__name__)
 # Set the secret key for the Flask app
 app.secret_key = "eatmylampa"  # Replace with a strong, unique key
 
+# Register Blueprints
+app.register_blueprint(cart_bp, url_prefix='/cart')
+app.register_blueprint(transaction_bp, url_prefix='/transaction')
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -15,7 +19,6 @@ def index():
 def transaction():
     return render_template('customer_transaction.html')
 
-app.register_blueprint(transaction_bp)
 
 @app.route('/admin/')
 def admin():
@@ -29,8 +32,11 @@ def admin_transaction():
 def activities():
     return render_template('customer_activities.html')
 
-# Register the cart Blueprint
-app.register_blueprint(cart_bp, url_prefix='/cart')
+# Route for cart page
+@app.route('/cart/')
+def cart():
+    cart = session.get('cart', [])
+    return render_template('customer_cart.html', cart=cart)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -6,7 +6,6 @@
     <h1 class="text-center mb-4">Shopping Cart</h1>
 
     <div class="row">
-        <!-- Cart Items -->
         <div class="col-md-8">
             {% if cart %}
             <div class="card border-0 shadow-sm mb-4">
@@ -18,32 +17,25 @@
                     </div>
                     <div class="col-md-6">
                         <div class="card-body">
-                            <h5 class="card-title fw-bold">{{ cart[0].activity_name }}</h5>
-                            <p class="card-subtitle text-muted mb-2">{{ cart[0].destination }}</p>
-                            <p class="card-text text-muted">Booked by *** Users</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3 text-end pe-4">
-                        <h4 class="fw-bold">SGD {{ cart[0].price }}</h4>
-                        <div class="d-flex align-items-center">
-                            <button class="btn btn-outline-secondary btn-sm">-</button>
-                            <span class="mx-2">01</span>
-                            <button class="btn btn-outline-secondary btn-sm">+</button>
+                            <h5 class="card-title fw-bold">{{ cart[0]['activity_name'] }}</h5>
+                            <p class="card-subtitle text-muted mb-2">Booked by *** Users</p>
+                            <h4 class="fw-bold">SGD {{ cart[0]['price'] }}</h4>
                         </div>
                     </div>
                 </div>
             </div>
             {% else %}
             <p class="text-center text-muted">Your cart is empty.</p>
+            <div class="text-center">
+                <a href="/activities/" class="btn btn-primary">Return to Experiences</a>
+            </div>
             {% endif %}
         </div>
 
-        <!-- Order Summary -->
         <div class="col-md-4">
             <div class="card shadow-sm border-0">
                 <div class="card-body">
                     <h5 class="fw-bold">Order Summary</h5>
-                    <hr>
                     <p class="d-flex justify-content-between">
                         <span>Item(s) Subtotal</span>
                         <span>SGD {{ cart | sum(attribute='price') }}</span>
@@ -58,8 +50,9 @@
                         <span>SGD {{ cart | sum(attribute='price') }}</span>
                     </p>
                     <hr>
-                    <input type="text" class="form-control mb-3" placeholder="Coupon">
-                    <button class="btn btn-warning w-100">Place Order</button>
+                    <form action="/transaction/" method="GET">
+                        <button type="submit" class="btn btn-warning w-100">Place Order</button>
+                    </form>
                 </div>
             </div>
         </div>
