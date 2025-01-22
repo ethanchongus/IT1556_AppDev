@@ -17,6 +17,7 @@
                 <th>Name</th>
                 <th>Description</th>
                 <th>Departures</th>
+                <th>Action</th>
                 
             </tr>
         </thead>
@@ -27,7 +28,7 @@
                 <td>{{ tour.name }}</td>
                 <td>{{ tour.description }}</td>
                 <td>{{ tour.departures|length }}</td>
-                
+                <td><a href="{{ url_for('purchase_tour', tour_id=tour.tour_id) }}">Purchase</a></td>
             </tr>
             {% endfor %}
         </tbody>
