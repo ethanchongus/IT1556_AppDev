@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="#" />
-    
+
     {% block head %}
     <!-- title -->
     <title>{% block title %}{% endblock %}</title>
@@ -22,22 +22,35 @@
             <div class="container-fluid">
               <a class="navbar-brand" href="#"><img width="180px" src="{{ url_for('static', filename = 'media/logo_banner.png') }}"></a>
             </div>
+            <ul class="navbar-nav">
+    {% if current_user.is_authenticated %}
+        <li class="nav-item">
+            <a class="nav-link" href="#">Welcome, {{ current_user.get_name() }}</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+        </li>
+    {% else %}
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('register_customer') }}">Register</a>
+        </li>
+    {% endif %}
+</ul>
+</div>
           </nav>
         <nav>
             <div>
     <ul class="navbar">
-        <li class="nav-item">
-            <a class="btn btn-outline-success" href="/register" role="button">Register</a>
-        </li>
-    </ul>
-</div>
         </nav>
     </header>
 
     {% block content %}
-    
-    
-    
+
+
+
     {% endblock %}
     <div id="footer">
 

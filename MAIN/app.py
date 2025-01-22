@@ -1,8 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for , flash
 from Forms import CreateUserForm , CreateCustomerForm
 import shelve, User , Customer
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from Forms import LoginForm
 
 app = Flask(__name__)
+app.secret_key = 'your-secret-key-here'  # Required for sessions
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 
 @app.route('/')
 def index():
@@ -103,7 +109,10 @@ def delete_user(id):
 
 
 @app.route('/register', methods=['GET', 'POST'])
-def register_customer():  # renamed to avoid conflict
+def register_customer():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+
     create_customer_form = CreateCustomerForm(request.form)
     if request.method == 'POST' and create_customer_form.validate():
         customers_dict = {}
@@ -113,6 +122,13 @@ def register_customer():  # renamed to avoid conflict
             customers_dict = db['Customers']
         except:
             print("Error in retrieving Customers from customer.db.")
+            customers_dict = {}
+
+        # Check if email already exists
+        for user in customers_dict.values():
+            if user.get_email() == create_customer_form.email.data:
+                flash('Email already registered', 'danger')
+                return render_template('register.html', form=create_customer_form)
 
         customer = Customer.Customer(
             create_customer_form.name.data,
@@ -123,12 +139,69 @@ def register_customer():  # renamed to avoid conflict
         )
         customers_dict[customer.get_customer_id()] = customer
         db['Customers'] = customers_dict
+        db.close()
+
+        login_user(customer)
+        flash('Registration successful!', 'success')
+        return redirect(url_for('index'))
+
+    return render_template('register.html', form=create_customer_form)
+
+@login_manager.user_loader
+def load_user(user_id):
+    users_dict = {}
+    db = shelve.open('customer.db', 'r')
+    try:
+        users_dict = db['Customers']
+        user = users_dict.get(int(user_id))
+        db.close()
+        return user
+    except:
+        db.close()
+        return None
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+
+    form = LoginForm(request.form)
+    if request.method == 'POST' and form.validate():
+        users_dict = {}
+        db = shelve.open('customer.db', 'r')
+        try:
+            users_dict = db['Customers']
+        except:
+            db.close()
+            flash('Error accessing user database', 'danger')
+            return redirect(url_for('login'))
+
+        # Find user by email
+        user = None
+        for u in users_dict.values():
+            if u.get_email() == form.email.data:
+                user = u
+                break
 
         db.close()
 
-        return redirect(url_for('index.html'))
+        if user and user.get_password() == form.password.data:
+            login_user(user)
+            flash('Logged in successfully.', 'success')
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid email or password.', 'danger')
 
-    return render_template('register.html', form=create_customer_form)
+    return render_template('login.html', form=form)
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Logged out successfully.', 'success')
+    return redirect(url_for('index'))
+
 
 
 if __name__ == '__main__':

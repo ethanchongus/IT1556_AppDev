@@ -21,3 +21,11 @@ class CreateCustomerForm(Form):
         validators.EqualTo('password', message='Passwords must match')
     ])
     number = StringField('Phone Number', [validators.Length(min=8, max=8), validators.DataRequired()])
+
+class LoginForm(Form):
+    email = StringField('Email', [
+        validators.Length(min=6, max=35),
+        validators.Email(),
+        validators.DataRequired()
+    ])
+    password = PasswordField('Password', [validators.DataRequired()])
