@@ -12,7 +12,7 @@ def index():
 
 
 # ACTIVITIES (ETHAN)
-@app.route('/tours')
+@app.route('/tours/')
 def user_viewtours():
 
     return render_template('user_viewtours.html',tours=toursdict)
@@ -83,14 +83,6 @@ generateSampleTours()
 
 # ===============================================
 # ???? 
-
-
-
-
-
-
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
