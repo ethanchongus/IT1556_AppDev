@@ -1,5 +1,6 @@
 from flask import Flask, render_template
 from transaction import transaction_bp  # Import the Blueprint
+from cart import cart_bp  # Import the cart Blueprint
 
 app = Flask(__name__)
 
@@ -24,6 +25,12 @@ def admin():
 def admin_transaction():
     return render_template('admin_transaction.html')
 
+@app.route('/activities/')
+def activities():
+    return render_template('customer_activities.html')
+
+# Register the cart Blueprint
+app.register_blueprint(cart_bp, url_prefix='/cart')
 
 if __name__ == '__main__':
     app.run(debug=True)
