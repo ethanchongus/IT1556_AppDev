@@ -1,5 +1,4 @@
 from flask import Flask, flash, render_template, request, redirect, url_for
-
 from activities import *
 
 app = Flask(__name__)
@@ -10,41 +9,40 @@ app.secret_key = 'ecoventures'
 def index():
     return render_template('index.html')
 
+@app.route('/admin')
+def admin_panel():
+    return render_template('admin_panel.html')
 
-# ACTIVITIES (ETHAN)
-@app.route('/tours/')
+# ACTIVITIES
+@app.route('/tours')
 def user_viewtours():
+    tours = load_tours()
+    return render_template('user_viewtours.html', tours=tours)
 
-    return render_template('user_viewtours.html',tours=toursdict)
 
 @app.route('/admin/activities/', methods=['GET', 'POST'])
 def admin_events():
+    tours = load_tours()
 
     if request.method == 'POST':
         if 'add_event' in request.form:
             name = request.form['event_name']
             desc = request.form['event_desc']
-            create_event(name,desc)
-        
+            create_event(name, desc)
+
         if "delete_tourid" in request.form:
             touridtodelete = uuid.UUID(request.form['delete_tourid'])
-            delete_event(touridtodelete)
-       
+            delete_tour(touridtodelete)
+
         return redirect(url_for('admin_events'))
 
-    return render_template('ADMIN_activities.html', tours=toursdict)
+    return render_template('ADMIN_activities.html', tours=tours)
+
 
 @app.route('/admin/activities/edit/<tour_id>', methods=['GET', 'POST'])
 def edit_tour(tour_id):
+    tour = get_tour(tour_id)
 
-    tour = None
-    for t in toursdict:
-        # print(f"checking {tour_id} against {t.tour_id}")
-        if str(tour_id) == str(t.tour_id):
-            tour = t
-            print("Tour found!")
-            break
-    
     if not tour:
         return "Tour not found", 404
 
@@ -69,20 +67,14 @@ def edit_tour(tour_id):
                     departure.date = request.form['edit_departure_date']
                     departure.price = float(request.form['edit_departure_price'])
                     departure.availability = int(request.form['edit_departure_availability'])
-                    print(f"Updated departure: {departure}")
                     break
-        
+
+        save_tour(tour)  # Save updated tour
         return redirect(url_for('edit_tour', tour_id=tour_id))
 
     return render_template('Admin_edittours.html', tour=tour)
 
-generateSampleTours()
-
-
-
-
-# ===============================================
-# ???? 
 
 if __name__ == '__main__':
+    generateSampleTours()
     app.run(debug=True)
