@@ -40,7 +40,7 @@ def create_user():
         except:
             print("Error in retrieving Users from user.db.")
 
-        user = User.User(create_user_form.first_name.data, create_user_form.last_name.data, create_user_form.gender.data, create_user_form.membership.data, create_user_form.remarks.data,create_user_form.number.data,create_user_form.email.data)
+        user = User.User(create_user_form.first_name.data, create_user_form.last_name.data, create_user_form.gender.data, create_user_form.membership.data, create_user_form.remarks.data,create_user_form.number.data,create_user_form.email.data,create_user_form.password.data)
         users_dict[user.get_user_id()] = user
         db['Users'] = users_dict
 
@@ -62,7 +62,7 @@ def retrieve_users():
         user = users_dict.get(key)
         users_list.append(user)
 
-    return render_template('retrieveUsers.html', count=len(users_list), users_list=users_list)
+    return render_template('retrieveUser.html', count=len(users_list), users_list=users_list)
 
 
 @app.route('/updateUser/<int:id>/', methods=['GET', 'POST'])
@@ -159,16 +159,28 @@ def register_customer():
 
 @login_manager.user_loader
 def load_user(user_id):
-    users_dict = {}
+    # First check customers
     db = shelve.open('customer.db', 'r')
     try:
         users_dict = db['Customers']
+        user = users_dict.get(int(user_id))
+        db.close()
+        if user:
+            return user
+    except:
+        db.close()
+
+    # Then check admin users
+    db = shelve.open('user.db', 'r')
+    try:
+        users_dict = db['Users']
         user = users_dict.get(int(user_id))
         db.close()
         return user
     except:
         db.close()
         return None
+
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -212,8 +224,40 @@ def logout():
     flash('Logged out successfully.', 'success')
     return redirect(url_for('index'))
 
+@app.route('/admin_login', methods=['GET', 'POST'])
+def admin_login():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
 
+    form = LoginForm(request.form)
+    if request.method == 'POST' and form.validate():
+        users_dict = {}
+        db = shelve.open('user.db', 'r')  # Open user database
+        try:
+            users_dict = db['Users']
+        except:
+            db.close()
+            flash('Error accessing user database', 'danger')
+            return redirect(url_for('admin_login'))
 
+        # Find admin user by email
+        admin_user = None
+        for u in users_dict.values():
+            if u.get_email() == form.email.data and u.is_admin():  # Check email and admin status
+                admin_user = u
+                break
+
+        db.close()
+
+        # Validate credentials
+        if admin_user and admin_user.get_password() == form.password.data:
+            login_user(admin_user)
+            flash('Admin logged in successfully.', 'success')
+            return redirect(url_for('admin'))
+        else:
+            flash('Invalid admin credentials. Please try again.', 'danger')
+
+    return render_template('adminlogin.html', form=form)
 if __name__ == '__main__':
     app.run(debug=True)
 
