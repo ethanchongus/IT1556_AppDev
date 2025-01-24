@@ -82,3 +82,24 @@ class User(UserMixin):
     def set_admin(self, is_admin):
         self.__is_admin = is_admin
 
+
+    def set_password(self, password):
+        self.__password = password
+
+    def set_admin(self, is_admin):
+        self.__is_admin = is_admin
+
+
+# Customer class inheriting from User
+class Customer(User):
+    def __init__(self, first_name, last_name, gender, membership, remarks, phone_number, email, customer_id=None):
+        super().__init__(first_name, last_name, gender, membership, remarks, phone_number, email)
+        self.__customer_id = customer_id if customer_id else self.get_user_id()
+
+    # accessor methods
+    def get_customer_id(self):
+        return self.__customer_id
+
+    # mutator methods
+    def set_customer_id(self, customer_id):
+        self.__customer_id = customer_id
