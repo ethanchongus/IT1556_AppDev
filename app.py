@@ -1,11 +1,21 @@
-from flask import Flask, render_template, request, redirect, url_for , flash
-from Forms import CreateUserForm , CreateCustomerForm
-import shelve, User , Customer
+from flask import Flask, render_template, request, redirect, url_for, flash
+from payment_routes import payment_bp
+from admin_routes import admin_bp
+from Forms import CreateUserForm, CreateCustomerForm, LoginForm
+import shelve
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from Forms import LoginForm
+from User import User, Customer
 
+# Initialize the Flask app
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-here'  # Required for sessions
+# Set the secret key for the Flask app
+app.secret_key = "secret"  # Replace with a strong, unique key
+
+# Register Blueprints
+app.register_blueprint(payment_bp, url_prefix='/payment')
+app.register_blueprint(admin_bp, url_prefix='/admin/payments')
+
+# Configure Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
