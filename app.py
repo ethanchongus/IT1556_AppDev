@@ -1,6 +1,12 @@
-from flask import Flask, flash, render_template, request, redirect, url_for
 from activities import *
 from purchase import *
+from flask import Flask, render_template, request, redirect, url_for, flash
+from payment_routes import payment_bp
+from admin_routes import admin_bp
+from Forms import CreateUserForm, CreateCustomerForm, LoginForm
+import shelve
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from User import User, Customer
 
 app = Flask(__name__)
 app.secret_key = 'ecoventures'
@@ -142,15 +148,6 @@ def remove_customer(tour_id, departure_date):
 
 
 
-if __name__ == '__main__':
-    # generateSampleTours()
-    app.run(debug=True)from flask import Flask, render_template, request, redirect, url_for, flash
-from payment_routes import payment_bp
-from admin_routes import admin_bp
-from Forms import CreateUserForm, CreateCustomerForm, LoginForm
-import shelve
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from User import User, Customer
 
 
 # Register Blueprints
@@ -162,13 +159,6 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/admin/')
-def admin():
-    return render_template('admin_panel.html')
 
 @app.route('/createUser', methods=['GET', 'POST'])
 def create_user():
@@ -400,73 +390,9 @@ def admin_login():
             flash('Invalid admin credentials. Please try again.', 'danger')
 
     return render_template('adminlogin.html', form=form)@app.route('/purchase/<tour_id>', methods=['GET', 'POST'])
-def purchase_tour(tour_id):
-    tour = get_tour(tour_id)
-
-    if not tour:
-        return "Tour not found", 404
-
-    if request.method == 'POST':
-        departure_date = request.form['departure_date']
-        user_name = request.form['user_name']
-        user_email = request.form['user_email']
-        seats = int(request.form['seats'])
-
-        # Find the selected departure and decrease availability
-        selected_departure = next((d for d in tour.departures if d.date == departure_date), None)
-        if selected_departure and selected_departure.availability >= seats:
-            selected_departure.availability -= seats
-            save_tour(tour)
-
-            # Create and save purchase
-            purchase = Purchase(tour_id, departure_date, user_name, user_email, seats)
-            save_purchase(purchase)
-
-            flash("Purchase successful!")
-            return redirect(url_for('user_viewtours'))
-        else:
-            flash("Not enough availability for the selected date.")
-
-    return render_template('purchase_tour.html', tour=tour)
-
-@app.route('/admin/activities/<tour_id>/customers/<departure_date>')
-def view_customers(tour_id, departure_date):
-    purchases = load_purchases()
-    customers = [purchase for purchase in purchases if purchase.tour_id == tour_id and purchase.departure_date == departure_date]
-    return render_template('admin_viewcustomers.html', customers=customers, tour_id=tour_id, departure_date=departure_date)
-
-@app.route('/admin/activities/<tour_id>/customers/<departure_date>/remove', methods=['POST'])
-def remove_customer(tour_id, departure_date):
-    purchase_id = request.form.get('purchase_id')
-    if purchase_id:
-        with shelve.open(purchase_db) as db:
-            if purchase_id in db:
-                purchase = db[purchase_id]
-                tour = get_tour(tour_id)
-
-                # Increment the availability for the removed seats
-                for departure in tour.departures:
-                    if departure.date == departure_date:
-                        departure.availability += purchase.seats
-                        break
-
-                # Delete the purchase from the database
-                del db[purchase_id]
-
-                # Save updated tour data
-                save_tour(tour)
-
-                flash("Customer removed successfully.")
-            else:
-                flash("Customer not found.")
-    else:
-        flash("Invalid request.")
-
-    return redirect(url_for('view_customers', tour_id=tour_id, departure_date=departure_date))
-
 
 
 if __name__ == '__main__':
-    # generateSampleTours()
+    generateSampleTours()
     app.run(debug=True)
 
