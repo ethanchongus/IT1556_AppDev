@@ -152,10 +152,6 @@ import shelve
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from User import User, Customer
 
-# Initialize the Flask app
-app = Flask(__name__)
-# Set the secret key for the Flask app
-app.secret_key = "secret"  # Replace with a strong, unique key
 
 # Register Blueprints
 app.register_blueprint(payment_bp, url_prefix='/payment')
