@@ -1,9 +1,10 @@
 # User class
-class User:
+from flask_login import  UserMixin
+class User(UserMixin):
     count_id = 0
 
     # initializer method
-    def __init__(self, first_name, last_name, gender, membership, remarks , phone_number , email):
+    def __init__(self, first_name, last_name, gender, membership, remarks , phone_number , email, password = None, is_admin=True    ):
         User.count_id += 1
         self.__user_id = User.count_id
         self.__first_name = first_name
@@ -13,8 +14,19 @@ class User:
         self.__remarks = remarks
         self.__phone_number = phone_number
         self.__email = email
+        self.__password = password
+        self.__is_admin = is_admin
 
     # accessor methods
+    def get_id(self):
+        return str(self.__user_id)
+
+    def get_password(self):
+        return self.__password
+
+    def is_admin(self):
+        return self.__is_admin
+
     def get_user_id(self):
         return self.__user_id
 
@@ -63,6 +75,20 @@ class User:
 
     def set_email(self,email):
         self.__email = email
+
+    def set_password(self, password):
+        self.__password = password
+
+    def set_admin(self, is_admin):
+        self.__is_admin = is_admin
+
+
+    def set_password(self, password):
+        self.__password = password
+
+    def set_admin(self, is_admin):
+        self.__is_admin = is_admin
+
 
 # Customer class inheriting from User
 class Customer(User):

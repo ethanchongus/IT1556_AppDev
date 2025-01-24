@@ -10,6 +10,11 @@ class CreateUserForm(Form):
     remarks = TextAreaField('Remarks', [validators.Optional()])
     number = StringField("Phone Number", [validators.Length(min=8, max=8), validators.DataRequired()])
     email = EmailField("Email",[validators.DataRequired()])
+    password = PasswordField('Password', [validators.Length(min=6), validators.DataRequired()])
+    confirm_password = PasswordField('Confirm Password', [
+        validators.DataRequired(),
+        validators.EqualTo('password', message='Passwords must match')
+    ])
 
 
 class CreateCustomerForm(Form):
