@@ -7,7 +7,7 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 def admin_payments():
     with shelve.open('payments.db') as db:
         payments = db.get('payments', [])
-    return render_template('admin_payments.html', payments=payments)
+    return render_template('admin/admin_payments.html', payments=payments)
 
 
 @admin_bp.route('/edit/<int:payment_id>', methods=['GET', 'POST'])
@@ -44,7 +44,7 @@ def edit_payment(payment_id):
 
             # If errors exist, re-render the form
             if errors:
-                return render_template('customer_payment.html', errors=errors, form_data=payment, editing=True)
+                return render_template('customer/customer_payment.html', errors=errors, form_data=payment, editing=True)
 
             # Save changes to the database
             db['payments'] = payments  # Update shelve with modified data
@@ -52,7 +52,7 @@ def edit_payment(payment_id):
             return redirect(url_for('admin.admin_payments'))
 
     # Render the edit form
-    return render_template('customer_payment.html', errors=errors, form_data=payment, editing=True)
+    return render_template('customer/customer_payment.html', errors=errors, form_data=payment, editing=True)
 
 
 @admin_bp.route('/delete/<int:payment_id>')

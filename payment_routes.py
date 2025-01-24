@@ -38,7 +38,7 @@ def customer_payment():
 
         # If errors exist, re-render the form
         if errors:
-            return render_template('customer_payment.html', errors=errors, form_data=request.form)
+            return render_template('customer/customer_payment.html', errors=errors, form_data=request.form)
 
         # Save valid data to the database
         with shelve.open('payments.db', writeback=True) as db:
@@ -57,4 +57,4 @@ def customer_payment():
         flash("Payment successfully submitted!")
         return redirect(url_for('payment.customer_payment'))
 
-    return render_template('customer_payment.html', errors=errors, form_data=form_data)
+    return render_template('customer/customer_payment.html', errors=errors, form_data=form_data)
