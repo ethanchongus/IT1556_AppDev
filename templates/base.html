@@ -13,57 +13,50 @@
     {% block head %}
     <!-- title -->
     <title>{% block title %}{% endblock %}</title>
-
     {% endblock %}
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-sm bg-dark navbar-dark ">
             <div class="container-fluid">
-              <a class="navbar-brand" href="#"><img width="180px" src="{{ url_for('static', filename = 'media/logo_banner.png') }}"></a>
-              <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="/activities/">Experiences</a></li>
-                <li class="nav-item"><a class="nav-link" href="/tours/">Rewards</a></li>
-                <li class="nav-item"><a class="nav-link" href="/tours/">About Us</a></li>
-                <li class="nav-item"><a class="nav-link" href="/cart/">Cart</a></li>
-                <li class="nav-item"><a class="nav-link" href="/tours/">User</a></li>
-
-
-
-              </ul>
+                <a class="navbar-brand" href="#">
+                    <img width="180px" src="{{ url_for('static', filename = 'media/logo_banner.png') }}">
+                </a>
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="/activities/">Experiences</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/tours/">Rewards</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/tours/">About Us</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('payment.customer_checkout') }}">Cart</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="/tours/">User</a></li>
+                </ul>
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Welcome, {{ current_user.get_name() }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('register_customer') }}">Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
             </div>
-            <ul class="navbar-nav">
-    {% if current_user.is_authenticated %}
-        <li class="nav-item">
-            <a class="nav-link" href="#">Welcome, {{ current_user.get_name() }}</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-        </li>
-    {% else %}
-        <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('register_customer') }}">Register</a>
-        </li>
-    {% endif %}
-</ul>
-</div>
-          </nav>
-        <nav>
-            <div>
-    <ul class="navbar">
         </nav>
     </header>
 
     {% block content %}
-
-
-
     {% endblock %}
-    <div id="footer">
 
-    </div>
+    <footer id="footer" class="text-center mt-4">
+        <!-- Optional footer content -->
+    </footer>
 </body>
 </html>

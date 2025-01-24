@@ -3,6 +3,25 @@ import shelve
 
 payment_bp = Blueprint('payment', __name__, url_prefix='/payment')
 
+# Dummy activity data
+activity = {
+    "id": 1,
+    "name": "Rainforest Hike",
+    "location": "Eco Park",
+    "price": 100,
+    "quantity": 1,
+    "total_price": 100
+}
+
+@payment_bp.route('/checkout', methods=['GET', 'POST'])
+def customer_checkout():
+    if request.method == 'POST':
+        # Redirect to payment page
+        return redirect(url_for('payment.customer_payment'))
+
+    return render_template('customer/customer_checkout.html', activity=activity)
+
+
 @payment_bp.route('/', methods=['GET', 'POST'])
 def customer_payment():
     errors = {}  # Initialize errors
@@ -50,11 +69,26 @@ def customer_payment():
                 'expiry_date': expiry_date,
                 'cvv': cvv,
                 'name': name,
-                'email': email
+                'email': email,
+                'activity': activity,  # Include dummy activity
+                'total': activity['price']  # Use activity price as total
             })
             db['payments'] = payments  # Save updated list
 
         flash("Payment successfully submitted!")
-        return redirect(url_for('payment.customer_payment'))
+        return redirect(url_for('payment.invoice', payment_id=payment_id))
 
     return render_template('customer/customer_payment.html', errors=errors, form_data=form_data)
+
+
+@payment_bp.route('/invoice/<int:payment_id>')
+def invoice(payment_id):
+    with shelve.open('payments.db') as db:
+        payments = db.get('payments', [])
+        payment = next((p for p in payments if p['id'] == payment_id), None)
+
+        if not payment:
+            flash("Invoice not found.")
+            return redirect(url_for('payment.customer_payment'))
+
+    return render_template('customer/customer_invoice.html', payment=payment)

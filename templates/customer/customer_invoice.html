@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Invoice{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Invoice</h2>
+    <hr>
+    <div>
+        <p><strong>Customer Name:</strong> {{ payment.name }}</p>
+        <p><strong>Email:</strong> {{ payment.email }}</p>
+    </div>
+    <hr>
+    <h4>Activity Details</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Activity Name</th>
+                <th>Description</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ payment.activity.name }}</td>
+                <td>{{ payment.activity.description }}</td>
+                <td>${{ payment.activity.price }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+    <h4>Total Amount Paid: ${{ payment.total }}</h4>
+    <a href="{{ url_for('payment.customer_payment') }}" class="btn btn-primary mt-3">Back to Payment</a>
+</div>
+{% endblock %}

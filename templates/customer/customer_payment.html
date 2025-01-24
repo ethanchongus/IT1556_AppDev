@@ -12,6 +12,7 @@
             {% endfor %}
         </div>
         {% endif %}
+
         <!-- Card Number -->
         <div class="flex items-center mb-4">
             <label for="card_number" class="w-48 text-right text-sm font-medium pr-4">Card Number*</label>
@@ -19,6 +20,7 @@
                    value="{{ form_data.card_number if form_data else '' }}"
                    class="flex-1 border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-green-500 focus:outline-none {% if errors.card_number %}border-red-500{% endif %}" required>
         </div>
+
         <!-- Expiration Date -->
         <div class="flex items-center mb-4">
             <label for="expiry_date" class="w-48 text-right text-sm font-medium pr-4">Expiration Date*</label>
@@ -26,6 +28,7 @@
                    value="{{ form_data.expiry_date if form_data else '' }}"
                    class="flex-1 border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-green-500 focus:outline-none {% if errors.expiry_date %}border-red-500{% endif %}" required>
         </div>
+
         <!-- CVV -->
         <div class="flex items-center mb-4">
             <label for="cvv" class="w-48 text-right text-sm font-medium pr-4">CVV*</label>
@@ -33,6 +36,7 @@
                    value="{{ form_data.cvv if form_data else '' }}"
                    class="flex-1 border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-green-500 focus:outline-none {% if errors.cvv %}border-red-500{% endif %}" required>
         </div>
+
         <!-- Full Name -->
         <div class="flex items-center mb-4">
             <label for="name" class="w-48 text-right text-sm font-medium pr-4">Full Name*</label>
@@ -40,6 +44,7 @@
                    value="{{ form_data.name if form_data else '' }}"
                    class="flex-1 border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-green-500 focus:outline-none {% if errors.name %}border-red-500{% endif %}" required>
         </div>
+
         <!-- Email -->
         <div class="flex items-center mb-4">
             <label for="email" class="w-48 text-right text-sm font-medium pr-4">Email*</label>
@@ -47,13 +52,15 @@
                    value="{{ form_data.email if form_data else '' }}"
                    class="flex-1 border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-green-500 focus:outline-none {% if errors.email %}border-red-500{% endif %}" required>
         </div>
+
         <!-- Buttons -->
         <div class="flex justify-end space-x-4 pt-4">
             <button type="submit" class="bg-black text-white px-6 py-2 rounded hover:bg-gray-800">{{ "Update" if editing else "Continue" }}</button>
-            <button type="button" class="bg-white border border-black text-black px-6 py-2 rounded hover:bg-gray-100">Cancel</button>
+            <a href="#" class="bg-white border border-black text-black px-6 py-2 rounded hover:bg-gray-100">Cancel</a>
         </div>
     </form>
 </div>
+
 <script>
     // Auto-spacing for card number (every 4 digits) and limit to 16 digits
     document.getElementById('card_number').addEventListener('input', function (e) {
@@ -62,13 +69,13 @@
         value = value.match(/.{1,4}/g)?.join(' ') || ''; // Group digits in fours
         e.target.value = value;
     });
-    
+
     // Limit CVV to 3 digits
     document.getElementById('cvv').addEventListener('input', function (e) {
         let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
         e.target.value = value.slice(0, 3); // Limit to 3 digits
     });
-    
+
     // Auto-formatting for expiration date (MM/YY)
     document.getElementById('expiry_date').addEventListener('input', function (e) {
         let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
@@ -77,5 +84,5 @@
         }
         e.target.value = value.slice(0, 5); // Limit to 5 characters (MM/YY)
     });
-    </script>    
+</script>
 {% endblock %}
