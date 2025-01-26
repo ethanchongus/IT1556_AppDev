@@ -1,0 +1,37 @@
+{% extends "base_admin.html" %}
+{% block title %}Admin Payments{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-8">
+    <h1 class="text-3xl font-bold text-center mb-6">Admin Payments</h1>
+    <table class="w-full border-collapse border border-gray-200">
+        <thead>
+            <tr class="bg-gray-100">
+                <th class="border px-4 py-2">ID</th>
+                <th class="border px-4 py-2">Name</th>
+                <th class="border px-4 py-2">Card Number</th>
+                <th class="border px-4 py-2">Expiry Date</th>
+                <th class="border px-4 py-2">CVV</th>
+                <th class="border px-4 py-2">Email</th>
+                <th class="border px-4 py-2">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td class="border px-4 py-2">{{ payment.id }}</td>
+                <td class="border px-4 py-2">{{ payment.name }}</td>
+                <td class="border px-4 py-2">{{ payment.card_number }}</td>
+                <td class="border px-4 py-2">{{ payment.expiry_date }}</td>
+                <td class="border px-4 py-2">{{ payment.cvv }}</td>
+                <td class="border px-4 py-2">{{ payment.email }}</td>
+                <td class="border px-4 py-2">
+                    <a href="{{ url_for('admin.edit_payment', payment_id=payment.id) }}" class="text-blue-500 hover:underline">Edit</a> |
+                    <a href="{{ url_for('admin.delete_payment', payment_id=payment.id) }}" class="text-red-500 hover:underline">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
