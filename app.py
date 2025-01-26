@@ -6,7 +6,8 @@ from admin_routes import admin_bp
 from Forms import CreateUserForm, CreateCustomerForm, LoginForm
 import shelve
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-from User import User, Customer
+from User import User
+from Customer import Customer
 
 app = Flask(__name__)
 app.secret_key = 'ecoventures'
@@ -172,7 +173,7 @@ def create_user():
         except:
             print("Error in retrieving Users from user.db.")
 
-        user = User.User(create_user_form.first_name.data, create_user_form.last_name.data, create_user_form.gender.data, create_user_form.membership.data, create_user_form.remarks.data,create_user_form.number.data,create_user_form.email.data,create_user_form.password.data)
+        user = User(create_user_form.first_name.data, create_user_form.last_name.data, create_user_form.gender.data, create_user_form.membership.data, create_user_form.remarks.data,create_user_form.number.data,create_user_form.email.data,create_user_form.password.data)
         users_dict[user.get_user_id()] = user
         db['Users'] = users_dict
 
@@ -272,7 +273,7 @@ def register_customer():
                 flash('Email already registered', 'danger')
                 return render_template('register.html', form=create_customer_form)
 
-        customer = Customer.Customer(
+        customer = Customer(
             create_customer_form.name.data,
             create_customer_form.email.data,
             create_customer_form.password.data,
