@@ -259,7 +259,7 @@ def register_customer():
     create_customer_form = CreateCustomerForm(request.form)
     if request.method == 'POST' and create_customer_form.validate():
         customers_dict = {}
-        db = shelve.open('customer.db', 'c')
+        db = shelve.open('database/customer.db', 'c')
 
         try:
             customers_dict = db['Customers']
@@ -293,7 +293,7 @@ def register_customer():
 @login_manager.user_loader
 def load_user(user_id):
     # First check customers
-    db = shelve.open('customer.db', 'r')
+    db = shelve.open('database/customer.db', 'r')
     try:
         users_dict = db['Customers']
         user = users_dict.get(int(user_id))
@@ -324,7 +324,7 @@ def login():
     form = LoginForm(request.form)
     if request.method == 'POST' and form.validate():
         users_dict = {}
-        db = shelve.open('customer.db', 'r')
+        db = shelve.open('database/customer.db', 'r')
         try:
             users_dict = db['Customers']
         except:
@@ -390,7 +390,7 @@ def admin_login():
         else:
             flash('Invalid admin credentials. Please try again.', 'danger')
 
-    return render_template('adminlogin.html', form=form)@app.route('/purchase/<tour_id>', methods=['GET', 'POST'])
+    return render_template('adminlogin.html', form=form)
 
 
 if __name__ == '__main__':
