@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Feedback</title>
+</head>
+<body>
+    <h1>Feedback Form</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="/feedback">
+        <label for="experience">Service Rating (1-5):</label>
+        <input type="radio" name="rating1" value="1"> 1
+        <input type="radio" name="rating1" value="2"> 2
+        <input type="radio" name="rating1" value="3"> 3
+        <input type="radio" name="rating1" value="4"> 4
+        <input type="radio" name="rating1" value="5"> 5
+        <br><br>
+
+        <label for="recommendation">Product Rating (1-5):</label>
+        <input type="radio" name="rating2" value="1"> 1
+        <input type="radio" name="rating2" value="2"> 2
+        <input type="radio" name="rating2" value="3"> 3
+        <input type="radio" name="rating2" value="4"> 4
+        <input type="radio" name="rating2" value="5"> 5
+        <br><br>
+
+        <label for="suggestion">Feedback:</label>
+        <textarea name="feedback_text" id="feedback_text" rows="5" cols="40"></textarea>
+        <br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

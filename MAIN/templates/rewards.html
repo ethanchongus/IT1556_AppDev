@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rewards</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .nav-tabs .nav-link.active {
+            background-color: #28a745;
+            color: white;
+        }
+        .points-section {
+            background: linear-gradient(to right, #d4edda, #a3d89c);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 20px;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Hi {{ user_data.username }}</h1>
+
+        <!-- Display Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="alert-container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Points Section -->
+        <div class="points-section">
+            <div>
+                <h4>Total Points</h4>
+                <p>{{ user_data.total_points }}</p>
+            </div>
+            <div>
+                <h4>Daily Points</h4>
+                <p>{{ user_data.daily_points }}</p>
+            </div>
+            <div>
+                <h4>Streak</h4>
+                <p>{{ user_data.streak }}</p>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link {% if section == 'earn' %}active{% endif %}" href="/rewards/earn">Earn</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if section == 'redeem' %}active{% endif %}" href="/rewards/redeem">Redeem</a>
+            </li>
+        </ul>
+
+        <!-- Section Content -->
+        <div class="mt-4">
+            {% if section == 'earn' %}
+                <h3>Daily Tasks</h3>
+                <div class="row">
+                    {% for task in data.tasks %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ task.name }}</h5>
+                                    <p class="card-text">{{ task.description }}</p>
+                                    <p class="card-text"><strong>+{{ task.points }} points</strong></p>
+                                    <form action="{{ url_for('quiz') }}" method="GET">
+                                        <button type="submit" class="btn btn-primary">Take Quiz</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% elif section == 'redeem' %}
+                <h3>Redeem Rewards</h3>
+                <ul class="list-group">
+                    {% for reward in data.rewards %}
+                        <li class="list-group-item">
+                            {{ reward.name }} - <strong>{{ reward.points_required }} points</strong>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

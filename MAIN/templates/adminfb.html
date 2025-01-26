@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, flash, session
-from earn import User, get_tasks
+from earn import User, get_tasks, complete_task
 from feedback import FeedbackManager
 from datetime import datetime, timedelta
 
@@ -31,6 +31,7 @@ def feedback_page():
         else:
             for error in feedback_manager.errors:
                 flash(error, "danger")
+
     return render_template('cusfb.html')
 
 @app.route('/admin')
@@ -42,82 +43,69 @@ def admin_page():
 def rewards():
     user = get_user()
     tasks = get_tasks()
-    streak = session.get('streak', user.streak)
     return render_template('rewards.html', section='earn', data={'tasks': tasks}, user_data={
         'username': user.username,
-        'total_points': session.get('total_points', user.total_points),  # Use session for points
+        'total_points': user.total_points,
         'daily_points': user.daily_points,
-        'streak': streak
+        'streak': user.streak
     })
 
-@app.route('/rewards/redeem', methods=['GET', 'POST'])
-def redeem():
+@app.route('/rewards/earn', methods=['GET', 'POST'])
+def earn():
     user = get_user()
-    streak = session.get('streak', user.streak)
     if request.method == 'POST':
-        reward_name = request.form['reward_name']
-        reward_points = int(request.form['reward_points'])
-
-        if user.total_points >= reward_points:
-            user.total_points -= reward_points
-            session['total_points'] = user.total_points
-            user.save()
-            flash(f"Successfully redeemed {reward_name} for {reward_points} points!", "success")
+        task_name = request.form['task_name']
+        if complete_task(user, task_name):
+            flash(f"Task '{task_name}' completed! Points added.", "success")
         else:
-            flash("Not enough points to redeem this reward.", "danger")
+            flash("Task completion failed. Try again.", "danger")
 
-    rewards = [
-        {'name': 'Voucher A', 'points': 50},
-        {'name': 'Voucher B', 'points': 100},
-        {'name': 'Voucher C', 'points': 150}
-    ]
-    return render_template('redeem.html', rewards=rewards, user_data={
+    tasks = get_tasks()
+    return render_template('rewards.html', section='earn', data={'tasks': tasks}, user_data={
         'username': user.username,
         'total_points': user.total_points,
-        'streak': streak  # Use streak from session
+        'daily_points': user.daily_points,
+        'streak': user.streak
     })
 
 @app.route('/rewards/earn/quiz', methods=['GET', 'POST'])
 def quiz():
     user = get_user()
     total_points = 0
-    score = 0
-
-    last_quiz_time = session.get(f'{user.username}_last_quiz_time', None)
-    if last_quiz_time is not None:
-        last_quiz_time = last_quiz_time.replace(tzinfo=None)
-        if datetime.now() - last_quiz_time < timedelta(days=1) and user.streak > 0:
-            flash("You can only take the quiz once every 24 hours.", "danger")
-            return redirect('/rewards/earn')
 
     if request.method == 'POST':
+        score = 0
         answer_1 = request.form.get('answer_1')
         answer_2 = request.form.get('answer_2')
 
         if answer_1 == 'train':
             score += 1
-            total_points += 25
+            total_points += 10
         if answer_2 == 'sweden':
             score += 1
-            total_points += 25
+            total_points += 10
 
-        if score == 2:
-            user.total_points += total_points
-            user.streak += 1
-            session['total_points'] = user.total_points
-            session['streak'] = user.streak
+        last_quiz_time = session.get(f'{user.username}_last_quiz_time', None)
+        if last_quiz_time is not None:
+            last_quiz_time = last_quiz_time.replace(tzinfo=None)
 
-            user.save()
-
-            flash(f"You got {score} out of 2 questions right! {total_points} points added.", "success")
-            session[f'{user.username}_last_quiz_time'] = datetime.now()
+        if last_quiz_time is None or datetime.now() - last_quiz_time >= timedelta(days=1):
+            if score == 2:
+                user.total_points += total_points
+                user.streak += 1
+                session['total_points'] = user.total_points
+                session['streak'] = user.streak
+                session['daily_points'] = user.daily_points
+                flash(f"You got {score} out of 2 questions right! {total_points} points added.", "success")
+                session[f'{user.username}_last_quiz_time'] = datetime.now()
+                return redirect('/rewards/earn')
+            else:
+                flash(f"You got {score} out of 2 questions right. Try again!", "danger")
+                return redirect('/rewards/earn')
         else:
-            flash(f"You got {score} out of 2 questions right. Try again!", "danger")
-
-        return redirect('/rewards/earn')
+            flash("You can only take the quiz once every 24 hours.", "danger")
 
     return render_template('quiz.html')
-
 
 @app.route('/reset_cd', methods=['GET'])
 def reset_cd():
@@ -132,15 +120,11 @@ def reset_streak():
     user.total_points = 0
     user.daily_points = 0
     user.streak = 0
-
-    session['streak'] = user.streak
-    session['total_points'] = user.total_points
-
-    user.save()
-
+    session['total_points'] = 0
+    session['daily_points'] = 0
+    session['streak'] = 0
     flash("Streak and points have been reset.", "success")
     return redirect('/rewards/earn')
-
 
 if __name__ == '__main__':
     app.run(debug=True)
