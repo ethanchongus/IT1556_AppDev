@@ -22,7 +22,7 @@ def admin_panel():
     return render_template('admin_panel.html')
 
 # ACTIVITIES
-@app.route('/tours')
+@app.route('/tours/')
 def user_viewtours():
     tours = load_tours()
     return render_template('user_viewtours.html', tours=tours)
