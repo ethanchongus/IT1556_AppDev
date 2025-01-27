@@ -7,6 +7,7 @@
     <table class="table table-striped">
         <thead>
             <tr>
+                <th>Purchase Id</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Seats</th>
@@ -16,6 +17,7 @@
         <tbody>
             {% for customer in customers %}
             <tr>
+                <td>{{ customer.purchase_id }}</td>
                 <td>{{ customer.user_name }}</td>
                 <td>{{ customer.user_email }}</td>
                 <td>{{ customer.seats }}</td>

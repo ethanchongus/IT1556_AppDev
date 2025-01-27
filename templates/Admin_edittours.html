@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-5">
     <h1>Edit Tour Details</h1>
     <form method="POST">
         <input type="hidden" name="basic_edit" value="1">
@@ -45,7 +45,7 @@
                         </td>
                         <td>
                             <form method="post">
-                                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editDepartureModal{{ departure.date }}">edit</button>
+                                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editDepartureModal{{ departure.date }}">Edit</button>
                                 <button type="submit" name="delete_departure" value="{{ departure.date }}" class="btn btn-danger btn-sm">Delete</button>
                             </form>
                             
