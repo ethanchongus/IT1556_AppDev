@@ -17,7 +17,7 @@ app.secret_key = 'ecoventures'
 def index():
     return render_template('index.html')
 
-@app.route('/admin')
+@app.route('/admin/')
 def admin_panel():
     return render_template('admin_panel.html')
 
