@@ -10,21 +10,18 @@ from Customer import Customer
 
 app = Flask(__name__)
 app.secret_key = 'ecoventures'
-
-def check_isUserAdmin():
-    if not current_user.is_authenticated or not hasattr(current_user, 'is_admin') or not current_user.is_admin():
-        print("User not admin")
-        flash("Access denied: Admins only.", "danger")
-        return redirect(url_for('index'))
-
+    
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/admin')
+@app.route('/admin/')
 @login_required
 def admin_panel():
-    check_isUserAdmin()
+    if not current_user.is_authenticated or not hasattr(current_user, 'is_admin') or not current_user.is_admin():
+        print("User not admin")
+        flash("Access denied: Admins only.", "danger")
+        return redirect(url_for('index'))
     return render_template('admin_panel.html')
 
 # ACTIVITIES
@@ -37,7 +34,10 @@ def user_viewtours():
 @app.route('/admin/activities/', methods=['GET', 'POST'])
 @login_required
 def admin_events():
-    check_isUserAdmin()
+    if not current_user.is_authenticated or not hasattr(current_user, 'is_admin') or not current_user.is_admin():
+        print("User not admin")
+        flash("Access denied: Admins only.", "danger")
+        return redirect(url_for('index'))
     tours = load_tours()
 
     if request.method == 'POST':
@@ -58,7 +58,10 @@ def admin_events():
 @app.route('/admin/activities/edit/<tour_id>', methods=['GET', 'POST'])
 @login_required
 def edit_tour(tour_id):
-    check_isUserAdmin()
+    if not current_user.is_authenticated or not hasattr(current_user, 'is_admin') or not current_user.is_admin():
+        print("User not admin")
+        flash("Access denied: Admins only.", "danger")
+        return redirect(url_for('index'))
     tour = get_tour(tour_id)
 
     if not tour:
@@ -159,7 +162,10 @@ def user_bookings():
 @app.route('/admin/activities/<tour_id>/customers/<departure_date>')
 @login_required
 def view_customers(tour_id, departure_date):
-    check_isUserAdmin()
+    if not current_user.is_authenticated or not hasattr(current_user, 'is_admin') or not current_user.is_admin():
+        print("User not admin")
+        flash("Access denied: Admins only.", "danger")
+        return redirect(url_for('index'))
     purchases = load_purchases()
     customers = [purchase for purchase in purchases if purchase.tour_id == tour_id and purchase.departure_date == departure_date]
     return render_template('admin_viewcustomers.html', customers=customers, tour_id=tour_id, departure_date=departure_date)
@@ -167,7 +173,10 @@ def view_customers(tour_id, departure_date):
 @app.route('/admin/activities/<tour_id>/customers/<departure_date>/remove', methods=['POST'])
 @login_required
 def remove_customer(tour_id, departure_date):
-    check_isUserAdmin()
+    if not current_user.is_authenticated or not hasattr(current_user, 'is_admin') or not current_user.is_admin():
+        print("User not admin")
+        flash("Access denied: Admins only.", "danger")
+        return redirect(url_for('index'))
     purchase_id = request.form.get('purchase_id')
     if purchase_id:
         with shelve.open(purchase_db) as db:
