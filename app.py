@@ -11,13 +11,20 @@ from Customer import Customer
 app = Flask(__name__)
 app.secret_key = 'ecoventures'
 
+def check_isUserAdmin():
+    if not current_user.is_authenticated or not hasattr(current_user, 'is_admin') or not current_user.is_admin():
+        print("User not admin")
+        flash("Access denied: Admins only.", "danger")
+        return redirect(url_for('index'))
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
 @app.route('/admin')
+@login_required
 def admin_panel():
+    check_isUserAdmin()
     return render_template('admin_panel.html')
 
 # ACTIVITIES
@@ -28,7 +35,9 @@ def user_viewtours():
 
 
 @app.route('/admin/activities/', methods=['GET', 'POST'])
+@login_required
 def admin_events():
+    check_isUserAdmin()
     tours = load_tours()
 
     if request.method == 'POST':
@@ -47,7 +56,9 @@ def admin_events():
 
 
 @app.route('/admin/activities/edit/<tour_id>', methods=['GET', 'POST'])
+@login_required
 def edit_tour(tour_id):
+    check_isUserAdmin()
     tour = get_tour(tour_id)
 
     if not tour:
@@ -87,35 +98,37 @@ def purchase_tour(tour_id):
     tour = get_tour(tour_id)
     if not tour:
         return "Tour not found", 404
-    
-    # Create form and populate departure date choices
-    form = TourPurchaseForm()
-    form.departure_date.choices = [
+
+    # Check for available departures
+    available_departures = [
         (d.date, f"{d.date} - ${d.price} ({d.availability} seats available)")
         for d in tour.departures
         if d.availability > 0
     ]
-    
+
+    if not available_departures:
+        flash("No available departure dates for this tour. Please check back later.", "warning")
+        return redirect(url_for('user_viewtours'))
+
+    # Create form and populate departure date choices
+    form = TourPurchaseForm()
+    form.departure_date.choices = available_departures
+
     # Pre-fill customer details if logged in
     if current_user.is_authenticated:
         form.user_name.data = current_user.get_name()
         form.user_email.data = current_user.get_email()
-    else:
-        # If not logged in, redirect to login and store the current URL for redirection after login
-        session['next'] = url_for('purchase_tour', tour_id=tour_id)
-        flash("Please log in to continue.", "warning")
-        return redirect(url_for('login'))
 
     if form.validate_on_submit():
         selected_departure = next(
             (d for d in tour.departures if d.date == form.departure_date.data),
             None
         )
-        
+
         if selected_departure and selected_departure.availability >= form.seats.data:
             selected_departure.availability -= form.seats.data
             save_tour(tour)
-            
+
             purchase = Purchase(
                 tour_id,
                 form.departure_date.data,
@@ -124,23 +137,37 @@ def purchase_tour(tour_id):
                 form.seats.data
             )
             save_purchase(purchase)
-            
-            flash("Purchase successful!")
+
+            flash("Purchase successful!", "success")
             return redirect(url_for('user_viewtours'))
         else:
-            flash("Not enough availability for the selected date.")
-    
+            flash("Not enough availability for the selected date.", "danger")
+
     return render_template('purchase_tour.html', form=form, tour=tour)
 
 
+@app.route('/user/bookings/', methods=['GET'])
+@login_required
+def user_bookings():
+    purchases = load_purchases()  # Load all purchases
+    user_email = current_user.get_email()  # Get the logged-in user's email
+    user_purchases = [purchase for purchase in purchases if purchase.user_email == user_email]  # Filter purchases by email
+    
+    return render_template('user_bookings.html', purchases=user_purchases)
+
+
 @app.route('/admin/activities/<tour_id>/customers/<departure_date>')
+@login_required
 def view_customers(tour_id, departure_date):
+    check_isUserAdmin()
     purchases = load_purchases()
     customers = [purchase for purchase in purchases if purchase.tour_id == tour_id and purchase.departure_date == departure_date]
     return render_template('admin_viewcustomers.html', customers=customers, tour_id=tour_id, departure_date=departure_date)
 
 @app.route('/admin/activities/<tour_id>/customers/<departure_date>/remove', methods=['POST'])
+@login_required
 def remove_customer(tour_id, departure_date):
+    check_isUserAdmin()
     purchase_id = request.form.get('purchase_id')
     if purchase_id:
         with shelve.open(purchase_db) as db:
@@ -340,6 +367,7 @@ def load_user(user_id):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
+        # Redirect to the stored URL or the homepage if already logged in
         next_url = session.pop('next', None)
         return redirect(next_url or url_for('index'))
 
@@ -366,11 +394,16 @@ def login():
         if user and user.get_password() == form.password.data:
             login_user(user)
             flash('Logged in successfully.', 'success')
-            return redirect(url_for('index'))
+            
+            # Retrieve the next URL stored in the session
+            next_url = session.pop('next', None)
+            
+            return redirect(next_url or url_for('index'))  # Redirect to the stored URL or homepage
         else:
             flash('Invalid email or password.', 'danger')
 
     return render_template('login.html', form=form)
+
 
 @app.route('/logout')
 @login_required
@@ -408,14 +441,32 @@ def admin_login():
         if admin_user and admin_user.get_password() == form.password.data:
             login_user(admin_user)
             flash('Admin logged in successfully.', 'success')
-            return redirect(url_for('admin'))
+            return redirect(url_for('admin_panel'))
         else:
             flash('Invalid admin credentials. Please try again.', 'danger')
 
     return render_template('adminlogin.html', form=form)
 
 
+def create_defaultadmin():
+    users_dict = {}
+    db = shelve.open('user.db', 'c')
+
+    try:
+        users_dict = db['Users']
+    except:
+        print("Error in retrieving Users from user.db.")
+
+    user = User("admin", "tan", "Male", "nil","nil","nil","admin@email.com","password",True)
+    users_dict[user.get_user_id()] = user
+    db['Users'] = users_dict
+
+    db.close()
+
+create_defaultadmin()
+
 if __name__ == '__main__':
     generateSampleTours()
     app.run(debug=True)
+
 
