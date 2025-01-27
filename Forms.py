@@ -1,6 +1,7 @@
-from wtforms import Form, StringField, RadioField, SelectField, TextAreaField, validators
+from flask_wtf import FlaskForm
+from wtforms import Form, StringField, RadioField, SelectField, TextAreaField, validators, IntegerField, SubmitField
 from wtforms.fields import EmailField , PasswordField
-from wtforms.validators import Email
+from wtforms.validators import Email, DataRequired, NumberRange
 
 class CreateUserForm(Form):
     first_name = StringField('First Name', [validators.Length(min=1, max=150), validators.DataRequired()])
@@ -34,3 +35,13 @@ class LoginForm(Form):
         validators.DataRequired()
     ])
     password = PasswordField('Password', [validators.DataRequired()])
+
+class TourPurchaseForm(FlaskForm):
+    departure_date = SelectField('Select Departure Date:', validators=[DataRequired()])
+    user_name = StringField('Your Name:', validators=[DataRequired()])
+    user_email = EmailField('Your Email:', validators=[DataRequired(), Email()])
+    seats = IntegerField('Number of Seats:', validators=[
+        DataRequired(),
+        NumberRange(min=1, message="Must purchase at least 1 seat")
+    ])
+    submit = SubmitField('Purchase')

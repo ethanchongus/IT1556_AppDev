@@ -3,8 +3,7 @@ from purchase import *
 from flask import Flask, render_template, request, redirect, url_for, flash
 from payment_routes import payment_bp
 from admin_routes import admin_bp
-from Forms import CreateUserForm, CreateCustomerForm, LoginForm
-import shelve
+from Forms import *
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from User import User
 from Customer import Customer
@@ -85,32 +84,42 @@ def edit_tour(tour_id):
 @app.route('/purchase/<tour_id>', methods=['GET', 'POST'])
 def purchase_tour(tour_id):
     tour = get_tour(tour_id)
-
     if not tour:
         return "Tour not found", 404
-
-    if request.method == 'POST':
-        departure_date = request.form['departure_date']
-        user_name = request.form['user_name']
-        user_email = request.form['user_email']
-        seats = int(request.form['seats'])
-
-        # Find the selected departure and decrease availability
-        selected_departure = next((d for d in tour.departures if d.date == departure_date), None)
-        if selected_departure and selected_departure.availability >= seats:
-            selected_departure.availability -= seats
+    
+    # Create form and populate departure date choices
+    form = TourPurchaseForm()
+    form.departure_date.choices = [
+        (d.date, f"{d.date} - ${d.price} ({d.availability} seats available)")
+        for d in tour.departures
+        if d.availability > 0
+    ]
+    
+    if form.validate_on_submit():
+        selected_departure = next(
+            (d for d in tour.departures if d.date == form.departure_date.data),
+            None
+        )
+        
+        if selected_departure and selected_departure.availability >= form.seats.data:
+            selected_departure.availability -= form.seats.data
             save_tour(tour)
-
-            # Create and save purchase
-            purchase = Purchase(tour_id, departure_date, user_name, user_email, seats)
+            
+            purchase = Purchase(
+                tour_id,
+                form.departure_date.data,
+                form.user_name.data,
+                form.user_email.data,
+                form.seats.data
+            )
             save_purchase(purchase)
-
+            
             flash("Purchase successful!")
             return redirect(url_for('user_viewtours'))
         else:
             flash("Not enough availability for the selected date.")
-
-    return render_template('purchase_tour.html', tour=tour)
+    
+    return render_template('purchase_tour.html', form=form, tour=tour)
 
 @app.route('/admin/activities/<tour_id>/customers/<departure_date>')
 def view_customers(tour_id, departure_date):
