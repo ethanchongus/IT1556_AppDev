@@ -3,28 +3,50 @@ import shelve
 
 payment_bp = Blueprint('payment', __name__, url_prefix='/payment')
 
-# Dummy activity data
-activity = {
-    "id": 1,
-    "name": "Rainforest Hike",
-    "location": "Eco Park",
-    "price": 100,
-    "quantity": 1,
-    "total_price": 100
-}
+# Dummy activities (Replace with Ethan's actual data retrieval if available)
+activities = [
+    {"id": 1, "name": "Rainforest Hike", "location": "Eco Park", "price": 100},
+    {"id": 2, "name": "Mountain Adventure", "location": "Highlands", "price": 150},
+    {"id": 3, "name": "Beach Getaway", "location": "Tropical Island", "price": 200},
+]
 
 @payment_bp.route('/checkout', methods=['GET', 'POST'])
 def customer_checkout():
-    if request.method == 'POST':
-        # Redirect to payment page
-        return redirect(url_for('payment.customer_payment'))
+    # Open or create a cart in the shelve database
+    with shelve.open('cart.db', writeback=True) as db:
+        cart = db.get('cart', [])  # Fetch cart or initialize as empty
 
-    return render_template('customer/customer_checkout.html', activity=activity)
+        if request.method == 'POST':
+            # Add selected activity to the cart
+            activity_id = int(request.form['activity_id'])
+            selected_activity = next((a for a in activities if a['id'] == activity_id), None)
+            if selected_activity:
+                cart.append(selected_activity)
+                db['cart'] = cart
+                flash(f"Added {selected_activity['name']} to cart!", "success")
 
+        # Calculate total price for the cart
+        total_price = sum(item['price'] for item in cart)
+        return render_template('customer/customer_checkout.html', activities=activities, cart=cart, total_price=total_price)
+
+@payment_bp.route('/checkout/remove/<int:activity_id>', methods=['POST'])
+def remove_from_cart(activity_id):
+    # Remove an activity from the cart
+    with shelve.open('cart.db', writeback=True) as db:
+        cart = db.get('cart', [])
+        cart = [item for item in cart if item['id'] != activity_id]  # Filter out the activity
+        db['cart'] = cart
+    flash("Activity removed from cart.", "info")
+    return redirect(url_for('payment.customer_checkout'))
 
 @payment_bp.route('/', methods=['GET', 'POST'])
 def customer_payment():
-    errors = {}  # Initialize errors
+    # Retrieve cart and calculate total
+    with shelve.open('cart.db') as db:
+        cart = db.get('cart', [])
+        total_price = sum(item['price'] for item in cart)
+
+    errors = {}
     form_data = request.form if request.method == 'POST' else None
 
     if request.method == 'POST':
@@ -35,51 +57,43 @@ def customer_payment():
         name = request.form.get('name', '')
         email = request.form.get('email', '')
 
-        # Validate Card Number (16 digits)
+        # Validate form inputs
         if len(card_number) != 16 or not card_number.isdigit():
             errors['card_number'] = "Card number must be exactly 16 digits."
-
-        # Validate Expiry Date (MM/YY format)
-        if not expiry_date or len(expiry_date) != 5 or not expiry_date[:2].isdigit() or not expiry_date[3:].isdigit() or expiry_date[2] != '/':
+        if not expiry_date:
+            errors['expiry_date'] = "Expiration date cannot be empty."
+        elif len(expiry_date) != 5 or not expiry_date[:2].isdigit() or not expiry_date[3:].isdigit() or expiry_date[2] != '/':
             errors['expiry_date'] = "Expiration date must be in MM/YY format."
-
-        # Validate CVV (3 digits)
         if len(cvv) != 3 or not cvv.isdigit():
             errors['cvv'] = "CVV must be exactly 3 digits."
-
-        # Validate Name (minimum 2 characters)
         if not name or len(name) < 2:
             errors['name'] = "Name must be at least 2 characters long."
-
-        # Validate Email
         if '@' not in email or '.' not in email:
             errors['email'] = "Enter a valid email address."
-
-        # If errors exist, re-render the form
+        # Re-render form if errors exist
         if errors:
-            return render_template('customer/customer_payment.html', errors=errors, form_data=request.form)
+            return render_template('customer/customer_payment.html', errors=errors, form_data=request.form, cart=cart, total_price=total_price)
 
-        # Save valid data to the database
-        with shelve.open('payments.db', writeback=True) as db:
-            payments = db.get('payments', [])
-            payment_id = len(payments) + 1
+        # Save payment and clear cart
+        with shelve.open('payments.db', writeback=True) as payments_db:
+            payments = payments_db.get('payments', [])
             payments.append({
-                'id': payment_id,
-                'card_number': card_number,
-                'expiry_date': expiry_date,
-                'cvv': cvv,
+                'id': len(payments) + 1,
+                'cart': cart,  # Include cart data in the payment
+                'total': total_price,
                 'name': name,
                 'email': email,
-                'activity': activity,  # Include dummy activity
-                'total': activity['price']  # Use activity price as total
             })
-            db['payments'] = payments  # Save updated list
+            payments_db['payments'] = payments
+
+        # Clear cart
+        with shelve.open('cart.db', writeback=True) as db:
+            db['cart'] = []
 
         flash("Payment successfully submitted!")
-        return redirect(url_for('payment.invoice', payment_id=payment_id))
+        return redirect(url_for('payment.invoice', payment_id=len(payments)))
 
-    return render_template('customer/customer_payment.html', errors=errors, form_data=form_data)
-
+    return render_template('customer/customer_payment.html', form_data=form_data, cart=cart, total_price=total_price)
 
 @payment_bp.route('/invoice/<int:payment_id>')
 def invoice(payment_id):
