@@ -38,7 +38,9 @@
             {% endfor %}
         </ul>
         <p class="font-bold">Total: SGD {{ total_price }}</p>
-        <a href="{{ url_for('payment.customer_payment') }}" class="bg-black text-white px-6 py-2 rounded">Proceed to Payment</a>
+        <form method="POST" action="{{ url_for('payment.customer_payment') }}">
+            <button type="submit" class="bg-black text-white px-6 py-2 rounded">Proceed to Payment</button>
+        </form>
     {% else %}
         <p>Your cart is empty.</p>
     {% endif %}

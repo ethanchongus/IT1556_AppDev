@@ -4,6 +4,20 @@
 {% block content %}
 <div class="container mx-auto py-8 max-w-lg">
     <h1 class="text-xl font-bold mb-8">{{ "Update Details" if editing else "Register New Card Information" }}</h1>
+    
+    <!-- Display Activity Summary -->
+    {% if cart %}
+    <div class="mb-8">
+        <h2 class="text-lg font-semibold">Activity Summary</h2>
+        <ul class="list-disc pl-5">
+            {% for item in cart %}
+            <li>{{ item.name }} - SGD {{ item.price }}</li>
+            {% endfor %}
+        </ul>
+        <p class="font-bold mt-4">Total: SGD {{ total_price }}</p>
+    </div>
+    {% endif %}
+    
     <form method="POST" action="{{ url_for('admin.edit_payment', payment_id=form_data.id) if editing else '/payment/' }}" class="space-y-6">
         {% if errors %}
         <div class="text-red-500 mb-4">
@@ -56,7 +70,7 @@
         <!-- Buttons -->
         <div class="flex justify-end space-x-4 pt-4">
             <button type="submit" class="bg-black text-white px-6 py-2 rounded hover:bg-gray-800">{{ "Update" if editing else "Continue" }}</button>
-            <a href="#" class="bg-white border border-black text-black px-6 py-2 rounded hover:bg-gray-100">Cancel</a>
+            <a href="{{ url_for('payment.customer_checkout') }}" class="bg-white border border-black text-black px-6 py-2 rounded hover:bg-gray-100">Cancel</a>
         </div>
     </form>
 </div>
