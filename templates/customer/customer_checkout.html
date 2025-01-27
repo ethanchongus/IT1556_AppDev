@@ -1,27 +1,48 @@
 {% extends "base.html" %}
-
-{% block title %}Checkout{% endblock %}
+{% block title %}Shopping Cart{% endblock %}
 
 {% block content %}
-<div class="container mx-auto py-8 max-w-4xl">
-    <h1 class="text-2xl font-bold mb-6">Shopping Cart</h1>
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div class="border rounded-md shadow-md p-4">
-            <img src="https://via.placeholder.com/150" alt="Activity Image" class="w-full h-48 object-cover mb-4">
-            <h2 class="text-lg font-semibold">{{ activity.name }}</h2>
-            <p class="text-sm text-gray-600">Location: {{ activity.location }}</p>
-            <p class="text-sm text-gray-600">Price: SGD {{ activity.price }}</p>
-            <p class="text-sm text-gray-600">Quantity: {{ activity.quantity }}</p>
-            <p class="text-sm text-gray-600">Total: SGD {{ activity.total_price }}</p>
+<div class="container py-8">
+    <h1 class="text-xl font-bold mb-4">Shopping Cart</h1>
+    
+    <h2 class="text-lg font-bold mb-4">Available Activities</h2>
+    <div>
+        {% for activity in activities %}
+        <div class="border rounded p-4 mb-4 flex justify-between items-center">
+            <div>
+                <h3 class="text-md font-semibold">{{ activity.name }}</h3>
+                <p>Location: {{ activity.location }}</p>
+                <p>Price: SGD {{ activity.price }}</p>
+            </div>
+            <form method="POST" action="{{ url_for('payment.customer_checkout') }}">
+                <input type="hidden" name="activity_id" value="{{ activity.id }}">
+                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Add to Cart</button>
+            </form>
         </div>
+        {% endfor %}
     </div>
-    <hr class="my-6">
-    <div class="flex justify-end">
-        <form method="POST" action="{{ url_for('payment.customer_checkout') }}">
-            <button type="submit" class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">
-                Proceed to Payment
-            </button>
+
+    <h2 class="text-lg font-bold mb-4">Your Cart</h2>
+    {% if cart %}
+        <ul class="mb-4">
+            {% for item in cart %}
+            <li class="flex justify-between items-center border rounded p-2 mb-2">
+                <div>
+                    <p>{{ item.name }}</p>
+                    <p>SGD {{ item.price }}</p>
+                </div>
+                <form method="POST" action="{{ url_for('payment.remove_from_cart', activity_id=item.id) }}">
+                    <button type="submit" class="text-red-500">Remove</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+        <p class="font-bold">Total: SGD {{ total_price }}</p>
+        <form method="POST" action="{{ url_for('payment.customer_payment') }}">
+            <button type="submit" class="bg-black text-white px-6 py-2 rounded">Proceed to Payment</button>
         </form>
-    </div>
+    {% else %}
+        <p>Your cart is empty.</p>
+    {% endif %}
 </div>
 {% endblock %}
