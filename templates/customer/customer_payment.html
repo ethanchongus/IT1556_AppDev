@@ -11,7 +11,7 @@
         <h2 class="text-lg font-semibold">Activity Summary</h2>
         <ul class="list-disc pl-5">
             {% for item in cart %}
-            <li>{{ item.name }} - SGD {{ item.price }}</li>
+            <li>{{ item.name }} - SGD {{ item.price }} x {{ item.quantity }} = SGD {{ item.price * item.quantity }}</li>
             {% endfor %}
         </ul>
         <p class="font-bold mt-4">Total: SGD {{ total_price }}</p>
