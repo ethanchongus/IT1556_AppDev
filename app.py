@@ -1,6 +1,6 @@
 from activities import *
 from purchase import *
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from payment_routes import payment_bp
 from admin_routes import admin_bp
 from Forms import *
@@ -82,6 +82,7 @@ def edit_tour(tour_id):
     return render_template('Admin_edittours.html', tour=tour)
 
 @app.route('/purchase/<tour_id>', methods=['GET', 'POST'])
+@login_required
 def purchase_tour(tour_id):
     tour = get_tour(tour_id)
     if not tour:
@@ -95,6 +96,16 @@ def purchase_tour(tour_id):
         if d.availability > 0
     ]
     
+    # Pre-fill customer details if logged in
+    if current_user.is_authenticated:
+        form.user_name.data = current_user.get_name()
+        form.user_email.data = current_user.get_email()
+    else:
+        # If not logged in, redirect to login and store the current URL for redirection after login
+        session['next'] = url_for('purchase_tour', tour_id=tour_id)
+        flash("Please log in to continue.", "warning")
+        return redirect(url_for('login'))
+
     if form.validate_on_submit():
         selected_departure = next(
             (d for d in tour.departures if d.date == form.departure_date.data),
@@ -108,8 +119,8 @@ def purchase_tour(tour_id):
             purchase = Purchase(
                 tour_id,
                 form.departure_date.data,
-                form.user_name.data,
-                form.user_email.data,
+                current_user.get_name(),
+                current_user.get_email(),
                 form.seats.data
             )
             save_purchase(purchase)
@@ -120,6 +131,7 @@ def purchase_tour(tour_id):
             flash("Not enough availability for the selected date.")
     
     return render_template('purchase_tour.html', form=form, tour=tour)
+
 
 @app.route('/admin/activities/<tour_id>/customers/<departure_date>')
 def view_customers(tour_id, departure_date):
@@ -328,7 +340,8 @@ def load_user(user_id):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        next_url = session.pop('next', None)
+        return redirect(next_url or url_for('index'))
 
     form = LoginForm(request.form)
     if request.method == 'POST' and form.validate():
