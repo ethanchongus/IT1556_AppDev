@@ -28,7 +28,8 @@
                 <td>{{ tour.name }}</td>
                 <td>{{ tour.description }}</td>
                 <td>{{ tour.departures|length }}</td>
-                <td><a href="{{ url_for('purchase_tour', tour_id=tour.tour_id) }}">Purchase</a></td>
+                <!-- <td><a href="{{ url_for('purchase_tour', tour_id=tour.tour_id) }}"><img src="{{ url_for('static', filename = 'media/add-to-cart.png') }}" width="25px"></a> Add to Cart</td> -->
+                 <td><a class="btn btn-outline-primary" href="{{ url_for('purchase_tour', tour_id=tour.tour_id) }}">Reserve</a> </td>
             </tr>
             {% endfor %}
         </tbody>
