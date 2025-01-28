@@ -49,7 +49,6 @@ class TourPurchaseForm(FlaskForm):
     submit = SubmitField('Purchase')
 
 def unique_tour_name(form, field):
-    """Custom validator to check if the tour name is unique."""
     tours = load_tours()  # Assume this returns a list of existing tours
     for tour in tours:
         if tour.name.lower() == field.data.lower():
