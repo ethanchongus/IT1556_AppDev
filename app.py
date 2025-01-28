@@ -39,12 +39,30 @@ def admin_events():
         flash("Access denied: Admins only.", "danger")
         return redirect(url_for('index'))
     tours = load_tours()
+    add_form = AddTourForm()
+
+    if add_form.validate_on_submit() and add_form.submit.data:
+        try:
+            name = add_form.event_name.data
+            desc = add_form.event_desc.data
+            create_event(name, desc)
+            flash(f"Tour '{name}' has been successfully added.", "success")
+        except Exception as e:
+            flash("Failed to add tour. Please try again.", "danger")
+            print(e)
+        return redirect(url_for('admin_events'))
+    elif add_form.is_submitted() and not add_form.validate():
+        # Flash validation errors for the AddTourForm
+        for field, errors in add_form.errors.items():
+            for error in errors:
+                flash(f"Error in {field.replace('_', ' ').title()}: {error}", "danger")
+
 
     if request.method == 'POST':
-        if 'add_event' in request.form:
-            name = request.form['event_name']
-            desc = request.form['event_desc']
-            create_event(name, desc)
+        # if 'add_event' in request.form:
+        #     name = request.form['event_name']
+        #     desc = request.form['event_desc']
+        #     create_event(name, desc)
 
         if "delete_tourid" in request.form:
             touridtodelete = uuid.UUID(request.form['delete_tourid'])
@@ -52,7 +70,7 @@ def admin_events():
 
         return redirect(url_for('admin_events'))
 
-    return render_template('ADMIN_activities.html', tours=tours)
+    return render_template('ADMIN_activities.html', tours=tours,add_form=add_form,)
 
 
 @app.route('/admin/activities/edit/<tour_id>', methods=['GET', 'POST'])

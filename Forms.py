@@ -1,7 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import Form, StringField, RadioField, SelectField, TextAreaField, validators, IntegerField, SubmitField
+from wtforms import Form, StringField, RadioField, SelectField, TextAreaField, validators, IntegerField, SubmitField,HiddenField, ValidationError
 from wtforms.fields import EmailField , PasswordField
-from wtforms.validators import Email, DataRequired, NumberRange
+from wtforms.validators import Email, DataRequired, NumberRange, Length
+from activities import load_tours
+
 
 class CreateUserForm(Form):
     first_name = StringField('First Name', [validators.Length(min=1, max=150), validators.DataRequired()])
@@ -45,3 +47,30 @@ class TourPurchaseForm(FlaskForm):
         NumberRange(min=1, message="Must purchase at least 1 seat")
     ])
     submit = SubmitField('Purchase')
+
+def unique_tour_name(form, field):
+    """Custom validator to check if the tour name is unique."""
+    tours = load_tours()  # Assume this returns a list of existing tours
+    for tour in tours:
+        if tour.name.lower() == field.data.lower():
+            raise ValidationError(f"The tour name '{field.data}' already exists. Please choose a different name.")
+
+class AddTourForm(FlaskForm):
+    event_name = StringField(
+        "Tour Name",
+        validators=[
+            DataRequired(message="Tour name is required."),
+            Length(max=100, message="Tour name cannot exceed 100 characters."),
+            unique_tour_name,  # Custom validator
+        ],
+    )
+    event_desc = StringField(
+        "Tour Description",
+        validators=[
+            DataRequired(message="Tour description is required."),
+            Length(max=200, message="Description cannot exceed 200 characters."),
+        ],
+    )
+    add_form = HiddenField(default="1")
+    submit = SubmitField("Add Tour")
+

@@ -10,19 +10,30 @@
 <div class="container mt-5">
     <h1 class="mb-4">Available Tours</h1>
     <div>
+        <!-- Add Tour Form -->
         <form method="POST">
-            <h4>Add Tours</h4>
-            <input type="hidden" name="add_event" value="1">
+            {{ add_form.hidden_tag() }}
             <div class="mb-3">
-                <label for="event_name" class="form-label" >Tour Name</label>
-                <input type="text" class="form-control" id="event_name" name="event_name" required>
+                {{ add_form.event_name.label(class="form-label") }}
+                {{ add_form.event_name(class="form-control") }}
+                {% if add_form.event_name.errors %}
+                    {% for error in add_form.event_name.errors %}
+                        <div class="text-danger">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
             </div>
             <div class="mb-3">
-                <label for="event_desc" class="form-label" >Tour Description</label>
-                <input type="text" class="form-control" id="event_desc" name="event_desc" required>
+                {{ add_form.event_desc.label(class="form-label") }}
+                {{ add_form.event_desc(class="form-control") }}
+                {% if add_form.event_desc.errors %}
+                    <div class="text-danger">
+                        {{ add_form.event_desc.errors[0] }}
+                    </div>
+                {% endif %}
             </div>
-            
-            <button type="submit" class="btn btn-success">Add Tour</button>
+            {{ add_form.submit(class="btn btn-success") }}
         </form>
     </div>
     <hr>
