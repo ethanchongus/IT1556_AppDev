@@ -11,9 +11,17 @@ from Customer import Customer
 app = Flask(__name__)
 app.secret_key = 'ecoventures'
     
+
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
+# Flask route for handling 404 errors
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('error_404_page.html'), 404
 
 @app.route('/admin/')
 @login_required
