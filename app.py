@@ -159,11 +159,12 @@ def purchase_tour(tour_id):
             save_tour(tour)
 
             purchase = Purchase(
-                tour_id,
-                form.departure_date.data,
-                current_user.get_name(),
-                current_user.get_email(),
-                form.seats.data
+                tour_id=tour_id,
+                tour_name=tour.name,  
+                departure_date=form.departure_date.data,
+                user_name=current_user.get_name(),
+                user_email=current_user.get_email(),
+                seats=form.seats.data
             )
             save_purchase(purchase)
 
