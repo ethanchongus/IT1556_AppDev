@@ -408,23 +408,55 @@ def get_user():
 @app.route('/feedback', methods=['GET', 'POST'])
 def feedback_page():
     if request.method == 'POST':
+        # Retrieve form data
         rating1 = request.form.get('rating1')
         rating2 = request.form.get('rating2')
         feedback_text = request.form.get('feedback_text')
 
+        # Validate user input
         if feedback_manager.validate(rating1, rating2, feedback_text):
+            # Save feedback
             feedback_manager.save_feedback(rating1, rating2, feedback_text)
-            flash("Thank you for your feedback!", "success")
-            return redirect('/feedback')
+            flash("Thank you for your response!", "success")
+            return redirect('/')  # Redirect to the homepage after submission
         else:
+            # Flash validation errors
             for error in feedback_manager.errors:
                 flash(error, "danger")
+
+    # Render feedback form template
     return render_template('cusfb.html')
 
-@app.route('/admin/feedback')
-def admin_page():
+
+
+@app.route('/admin/feedback/', methods=['GET', 'POST'])
+def admin_feedback():
     feedback_list = feedback_manager.get_all_feedback()
-    return render_template('adminfb.html', feedback=feedback_list)
+
+    if request.method == 'POST':
+        feedback_id = request.form.get('feedback_id')
+        if 'reply' in request.form:
+            # Handle reply submission
+            reply = request.form.get('reply_text')
+            try:
+                feedback_manager.reply_to_feedback(feedback_id, reply)
+                flash(f"Reply added to feedback ID {feedback_id}.", "success")
+            except KeyError as e:
+                flash(str(e), "danger")
+        elif 'delete' in request.form:
+            # Handle feedback deletion
+            try:
+                feedback_manager.delete_feedback(feedback_id)
+                flash(f"Feedback ID {feedback_id} deleted successfully.", "success")
+            except KeyError as e:
+                flash(str(e), "danger")
+
+        # Reload the feedback list after modification
+        feedback_list = feedback_manager.get_all_feedback()
+
+    return render_template('ADMIN_feedback.html', feedback_list=feedback_list)
+
+
 
 @app.route('/rewards/earn')
 def rewards():
@@ -461,14 +493,12 @@ def quiz():
     total_points = 0
     score = 0
 
-    # Check if user has completed the quiz and has passed the cooldown for 2/2 (only apply cooldown if they passed)
     last_quiz_time = session.get(f'{user.username}_last_quiz_time', None)
     if last_quiz_time is not None:
         last_quiz_time = last_quiz_time.replace(tzinfo=None)
-        # Apply cooldown only if they got 2/2 in the previous attempt
         if datetime.now() - last_quiz_time < timedelta(days=1) and user.streak > 0:
             flash("You can only take the quiz once every 24 hours.", "danger")
-            return redirect('/rewards/earn')  # Redirect to rewards page if cooldown hasn't passed
+            return redirect('/rewards/earn')
 
     if request.method == 'POST':
         answer_1 = request.form.get('answer_1')
@@ -481,7 +511,6 @@ def quiz():
             score += 1
             total_points += 25
 
-        # If the score is 2/2, add points and increment streak
         if score == 2:
             user.total_points += total_points
             user.streak += 1
@@ -522,7 +551,6 @@ def redeem():
         reward_name = request.form['reward_name']
         reward_points = int(request.form['reward_points'])
 
-        # Check if the user has enough points to redeem the reward
         if user.total_points >= reward_points:
             user.total_points -= reward_points
             session['total_points'] = user.total_points
@@ -530,7 +558,6 @@ def redeem():
         else:
             flash("Not enough points to redeem this reward.", "danger")
 
-    # Example rewards (you can add more or modify this as per your need)
     rewards = [
         {'name': 'Voucher A', 'points': 50},
         {'name': 'Voucher B', 'points': 100},
@@ -540,6 +567,8 @@ def redeem():
         'username': user.username,
         'total_points': user.total_points,
     })
+
+
 
 if __name__ == '__main__':
     generateSampleTours()
