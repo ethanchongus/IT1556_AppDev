@@ -1,17 +1,30 @@
 {% extends "base.html" %}
-{% block title %}Checkout{% endblock %}
+{% block title %}Shopping Cart{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2>Checkout</h2>
-    <ul>
+<div class="container mx-auto py-8 max-w-lg">
+    <h1 class="text-xl font-bold mb-8">Your Bookings</h1>
+    
+    {% if cart %}
         {% for item in cart %}
-        <li>{{ item.name }} - ${{ item.price }} x {{ item.quantity }}</li>
+        <div class="border rounded-lg p-4 mb-4 shadow">
+            <h2 class="text-lg font-semibold">Tour Name: {{ item.name }}</h2>
+            <p><strong>Departure Date:</strong> {{ item.date }}</p>
+            <p><strong>Seats Booked:</strong> {{ item.quantity }}</p>
+            <p><strong>Price:</strong> SGD {{ item.price }}</p>
+            <p><strong>Total:</strong> SGD {{ item.total }}</p>
+            
+            <!-- Proceed to Payment Button -->
+            <form method="POST" action="{{ url_for('payment.customer_payment') }}">
+                <input type="hidden" name="selected_activity" value="{{ item.id }}">
+                <button type="submit" class="bg-black text-white px-6 py-2 rounded hover:bg-gray-800">
+                    Proceed to Payment
+                </button>
+            </form>
+        </div>
         {% endfor %}
-    </ul>
-    <h4>Total: ${{ sum(item.price * item.quantity for item in cart) }}</h4>
-    <form method="POST" action="{{ url_for('payment.customer_checkout') }}">
-        <button type="submit" class="btn btn-primary">Proceed to Payment</button>
-    </form>
+    {% else %}
+        <p class="text-gray-500">Your cart is empty.</p>
+    {% endif %}
 </div>
 {% endblock %}

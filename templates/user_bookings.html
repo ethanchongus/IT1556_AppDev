@@ -1,21 +1,22 @@
 {% extends "base.html" %}
-{% block title %}Your Bookings{% endblock %}
+{% block title %}My Bookings{% endblock %}
+
 {% block content %}
-<div class="container my-5">
-    <h1 class="text-center">Your Bookings</h1>
-    {% if purchases %}
-        <div class="list-group mt-5">
-            {% for purchase in purchases %}
-            <div class="list-group-item">
-                <h5>Tour Name: {{ purchase.tour_name }}</h5>
-                <p>Departure Date: {{ purchase.departure_date }}</p>
-                <p>Seats Booked: {{ purchase.seats }}</p>
-                <p>Purchase ID: {{ purchase.purchase_id }}</p>
-            </div>
-            {% endfor %}
+<div class="container mx-auto py-8 max-w-lg">
+    <h1 class="text-xl font-bold mb-8">Your Bookings</h1>
+    
+    {% if bookings %}
+        {% for booking in bookings %}
+        <div class="border rounded-lg p-4 mb-4 shadow">
+            <h2 class="text-lg font-semibold">Tour Name: {{ booking.activity.name }}</h2>
+            <p><strong>Departure Date:</strong> {{ booking.activity.date }}</p>
+            <p><strong>Seats Booked:</strong> {{ booking.activity.quantity }}</p>
+            <p><strong>Price:</strong> SGD {{ booking.activity.price }}</p>
+            <p><strong>Purchase ID:</strong> {{ booking.id }}</p>
         </div>
+        {% endfor %}
     {% else %}
-        <p class="text-center text-muted">You have no bookings yet. Start exploring and booking tours!</p>
+        <p class="text-gray-500">You have no bookings.</p>
     {% endif %}
 </div>
 {% endblock %}
