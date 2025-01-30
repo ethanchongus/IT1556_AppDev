@@ -37,8 +37,8 @@ def add_to_cart(activity_id):
 @payment_bp.route('/cart')
 def view_cart():
     cart = get_cart()
-    total_price = sum(item['price'] for item in cart)
-    return render_template('customer/cart.html', cart=cart, total_price=total_price)
+    total_price = sum(item['price'] for item in cart) if cart else 0
+    return render_template('customer/customer_cart.html', cart=cart, total_price=total_price)
 
 # Route to remove from cart
 @payment_bp.route('/remove_from_cart/<cart_id>')
@@ -46,6 +46,7 @@ def remove_from_cart(cart_id):
     cart = get_cart()
     cart = [item for item in cart if item['id'] != cart_id]
     save_cart(cart)
+    flash("Item removed from cart.")
     return redirect(url_for('payment.view_cart'))
 
 # Checkout page
@@ -64,14 +65,14 @@ def checkout():
     return render_template('customer/checkout.html', cart=cart, total_price=total_price)
 
 # Payment page
-@payment_bp.route('/payment', methods=['GET', 'POST'])
+@payment_bp.route('/customer_payment', methods=['GET', 'POST'])
 def customer_payment():
     cart = get_cart()
     total_price = sum(item['price'] for item in cart)
     
-    if not cart:
-        flash("No activities selected!")
-        return redirect(url_for('payment.view_cart'))
+    # if not cart:
+    #     flash("No activities selected!")
+    #     return redirect(url_for('payment.view_cart'))
 
     errors = {}
 
@@ -89,8 +90,8 @@ def customer_payment():
             errors['expiry_date'] = "Expiration date must be MM/YY."
         if len(cvv) != 3 or not cvv.isdigit():
             errors['cvv'] = "CVV must be 3 digits."
-        if len(name) < 2:
-            errors['name'] = "Name must be at least 2 characters."
+        if not name.isalpha() or len(name) < 2:
+            errors['name'] = "Name must only contain letters and be at least 2 characters long."
         if '@' not in email or '.' not in email:
             errors['email'] = "Enter a valid email."
 
@@ -126,7 +127,7 @@ def invoice(payment_id):
             flash("Invoice not found.")
             return redirect(url_for('payment.view_cart'))
 
-    return render_template('customer/invoice.html', payment=payment)
+    return render_template('customer/customer_invoice.html', payment=payment)
 
 # My Bookings
 @payment_bp.route('/my_bookings')
@@ -134,3 +135,7 @@ def my_bookings():
     with shelve.open('payments.db') as db:
         payments = db.get('payments', [])
     return render_template('customer/my_bookings.html', payments=payments)
+
+@payment_bp.route('/')
+def payment_redirect():
+    return redirect(url_for('payment.customer_payment'))
