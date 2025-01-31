@@ -5,5 +5,5 @@ PW: password
 
 
 ### Sample Admin
-User: admin@admin.com  
+User: admin@email.com  
 PW: password
