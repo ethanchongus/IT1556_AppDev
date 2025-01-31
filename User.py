@@ -4,7 +4,7 @@ class User(UserMixin):
     count_id = 0
 
     # initializer method
-    def __init__(self, first_name, last_name, gender, membership, remarks , phone_number , email, password = None, is_admin=True    ):
+    def __init__(self, first_name, last_name, gender, membership, remarks , phone_number , email, password = None, is_admin=True):
         User.count_id += 1
         self.__user_id = User.count_id
         self.__first_name = first_name
