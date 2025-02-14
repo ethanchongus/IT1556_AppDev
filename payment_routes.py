@@ -99,7 +99,7 @@ def customer_payment():
             return render_template('customer/customer_payment.html', errors=errors, cart=cart, total_price=total_price)
 
         # Save to database
-        with shelve.open('payments.db', writeback=True) as db:
+        with shelve.open('database/payments.db', writeback=True) as db:
             payments = db.get('payments', [])
             payment_id = str(uuid.uuid4())
             payments.append({
@@ -119,7 +119,7 @@ def customer_payment():
 # Invoice
 @payment_bp.route('/invoice/<payment_id>')
 def invoice(payment_id):
-    with shelve.open('payments.db') as db:
+    with shelve.open('database/payments.db') as db:
         payments = db.get('payments', [])
         payment = next((p for p in payments if p['id'] == payment_id), None)
 
@@ -132,7 +132,7 @@ def invoice(payment_id):
 # My Bookings
 @payment_bp.route('/my_bookings')
 def my_bookings():
-    with shelve.open('payments.db') as db:
+    with shelve.open('database/payments.db') as db:
         payments = db.get('payments', [])
     return render_template('customer/my_bookings.html', payments=payments)
 
