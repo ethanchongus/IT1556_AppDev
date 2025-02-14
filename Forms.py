@@ -94,3 +94,22 @@ class SearchTourForm(FlaskForm):
         render_kw={"placeholder": "Eg. Singapore", "oninput": "this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1).toLowerCase()"}
     )
     submit = SubmitField("Search")
+
+class PassengerForm(FlaskForm):
+    name = StringField(
+        "Passenger Full Name",
+        validators=[DataRequired(), Length(max=100, message="Name cannot exceed 100 characters.")]
+    )
+    age = IntegerField(
+        "Passenger Age",
+        validators=[DataRequired(), NumberRange(min=0, message="Age must be a valid number.")]
+    )
+    passport_number = StringField(
+        "Passport Number",
+        validators=[DataRequired(), Length(min=6, max=9, message="Enter a valid passport number.")]
+    )
+    contact_number = StringField('Contact Number', [validators.Length(min=8, max=8), validators.DataRequired()])
+    email = EmailField("Email",validators=[DataRequired(), Email(message="Enter a valid email address.")])
+    submit = SubmitField("Save Passenger")
+
+

@@ -221,17 +221,50 @@ def purchase_tour(tour_id):
     return render_template('purchase_tour.html', form=form, tour=tour)
 
 
-@app.route('/user/bookings/', methods=['GET'])
+@app.route('/user/bookings/', methods=['GET', 'POST'])
 @login_required
 def user_bookings():
-    purchases = load_purchases()  # Load all purchases
-    user_email = current_user.get_email()  # Get the logged-in user's email
-
-    print(f"Loaded Purchases: {purchases}")  # Debugging line
+    purchases = load_purchases()
+    user_email = current_user.get_email()
     user_purchases = [purchase for purchase in purchases if purchase.get_user_email() == user_email]
 
-    print(f"Filtered Purchases for {user_email}: {user_purchases}")  # Debugging line
-    return render_template('user_bookings.html', bookings=user_purchases)
+    passenger_form = PassengerForm()
+
+    if request.method == 'POST' and passenger_form.validate_on_submit():
+        purchase_id = request.form.get("purchase_id")
+        seat_number = int(request.form.get("seat_number"))
+
+        if not purchase_id:
+            flash("Invalid purchase ID.", "danger")
+            return redirect(url_for('user_bookings'))
+
+        with shelve.open(purchase_db, writeback=True) as db:
+            if purchase_id in db:
+                purchase = db[purchase_id]
+                
+                new_passenger = Passenger(
+                    passenger_form.name.data,
+                    passenger_form.age.data,
+                    passenger_form.passport_number.data,
+                    passenger_form.contact_number.data,
+                    passenger_form.email.data
+                )
+
+                # If seat already has a passenger, update it; otherwise, add a new passenger
+                if seat_number < len(purchase.get_passengers()):
+                    purchase.get_passengers()[seat_number] = new_passenger
+                else:
+                    purchase.get_passengers().append(new_passenger)
+
+                db[purchase_id] = purchase
+                flash("Passenger details updated successfully!", "success")
+            else:
+                flash("Purchase not found!", "danger")
+
+        return redirect(url_for('user_bookings'))
+
+    return render_template('user_bookings.html', purchases=user_purchases, passenger_form=passenger_form)
+
 
 
 
@@ -239,12 +272,16 @@ def user_bookings():
 @login_required
 def view_customers(tour_id, departure_date):
     if not current_user.is_authenticated or not hasattr(current_user, 'is_admin') or not current_user.is_admin():
-        print("User not admin")
         flash("Access denied: Admins only.", "danger")
         return redirect(url_for('index'))
+    tour = get_tour(tour_id)
+    tourname = tour.get_name() 
+    departure_date = departure_date
     purchases = load_purchases()
     customers = [purchase for purchase in purchases if purchase.get_tour_id() == tour_id and purchase.get_departure_date() == departure_date]
-    return render_template('admin_viewcustomers.html', customers=customers, tour_id=tour_id, departure_date=departure_date)
+
+    return render_template('admin_viewcustomers.html', customers=customers, departure_date = departure_date, tourname=tourname)
+
 
 
 @app.route('/admin/activities/<tour_id>/customers/<departure_date>/remove', methods=['POST'])

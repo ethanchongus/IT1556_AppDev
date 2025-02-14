@@ -3,15 +3,15 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1>Customers for {{ departure_date }}</h1>
+    <h1>Customers for {{tourname}}: {{departure_date }}</h1>
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Purchase Id</th>
+                <th>Purchase ID</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Seats</th>
-                <th>Action</th>
+                <th>Details</th>
             </tr>
         </thead>
         <tbody>
@@ -22,15 +22,53 @@
                 <td>{{ customer.get_user_email() }}</td>
                 <td>{{ customer.get_seats() }}</td>
                 <td>
-                    <form method="post" action="{{ url_for('remove_customer', tour_id=tour_id, departure_date=departure_date) }}">
-                        <input type="hidden" name="purchase_id" value="{{ customer.get_purchase_id() }}">
-                        <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-                    </form>
+                    <button class="btn btn-info btn-sm" data-bs-toggle="collapse" data-bs-target="#seats{{ customer.get_purchase_id() }}">
+                        View Seats
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5">
+                    <div class="collapse" id="seats{{ customer.get_purchase_id() }}">
+                        <div class="card card-body">
+                            <h5>Seat Information</h5>
+                            <ul class="list-group list-group-flush">
+                                {% for i in range(customer.get_seats()) %}
+                                <li class="list-group-item">
+                                    <h4>Seat {{ i+1 }}:</h4> 
+                                    {% if i < customer.get_passengers()|length %}
+                                        <div>
+                                            <table class="table">
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Age</th>
+                                                    <th>Passport No.</th>
+                                                    <th>Contact No.</th>
+                                                    <th>Email</th>
+                                                </tr>
+                                                <tr>
+                                                    <td>{{ customer.get_passengers()[i].get_name() }}</td>
+                                                    <td>{{ customer.get_passengers()[i].get_age() }}</td>
+                                                    <td>{{ customer.get_passengers()[i].get_passport_number() }}</td>
+                                                    <td>{{ customer.get_passengers()[i].get_contact_number() }}</td>
+                                                    <td>{{ customer.get_passengers()[i].get_email() }}</td>
+                                                </tr>
+                                            </table>
+
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted">Unassigned</span>
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    <a href="{{ url_for('edit_tour', tour_id=tour_id) }}" class="btn btn-primary">Back to Edit Tour</a>
 </div>
+
 {% endblock %}

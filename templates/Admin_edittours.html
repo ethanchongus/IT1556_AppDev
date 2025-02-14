@@ -95,14 +95,24 @@
             <label for="departure_date" class="form-label">Departure Date</label>
             <input type="date" class="form-control" id="departure_date" name="departure_date" required>
         </div>
-        <div class="mb-3">
-            <label for="departure_price" class="form-label">Price</label>
-            <input type="number" step="0.01" class="form-control" id="departure_price" name="departure_price" required>
+        <div class="row">
+            
+            <div class="mb-3 col">
+                <label for="departure_price" class="form-label">Price</label>
+                <div class="input-group">
+                    <span class="input-group-text" id="basic-addon1">$</span>
+                    <input type="number" step="1" class="form-control" id="departure_price" min="0" name="departure_price" required>
+                </div>
+            </div>
+            <div class="mb-3 col">
+                <label for="departure_availability" class="form-label">Availability</label>
+                <div class="input-group">
+                    <input type="number" class="form-control" id="departure_availability" name="departure_availability" required>
+                    <span class="input-group-text" id="basic-addon2">Seats</span>
+                </div>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="departure_availability" class="form-label">Availability</label>
-            <input type="number" class="form-control" id="departure_availability" name="departure_availability" required>
-        </div>
+       
         <button type="submit" class="btn btn-success">Add Departure</button>
     </form>
 </div>
