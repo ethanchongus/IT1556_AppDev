@@ -42,7 +42,7 @@
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Welcome, {{ current_user.get_name() }}</a>
                                 <ul class="dropdown-menu">
-                                  <li><a class="dropdown-item" href="#">Profile</a></li>
+                                  <li><a class="dropdown-item" href="profile">Profile</a></li>
                                   <li><a class="dropdown-item" href="/user/bookings/">My Bookings</a></li>
                                   <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
                                 </ul>
