@@ -16,9 +16,7 @@
                 {{ add_form.event_name(class="form-control") }}
                 {% if add_form.event_name.errors %}
                     {% for error in add_form.event_name.errors %}
-                        <div class="text-danger">
-                            {{ error }}
-                        </div>
+                        <div class="text-danger">{{ error }}</div>
                     {% endfor %}
                 {% endif %}
             </div>
@@ -26,9 +24,14 @@
                 {{ add_form.event_desc.label(class="form-label") }}
                 {{ add_form.event_desc(class="form-control") }}
                 {% if add_form.event_desc.errors %}
-                    <div class="text-danger">
-                        {{ add_form.event_desc.errors[0] }}
-                    </div>
+                    <div class="text-danger">{{ add_form.event_desc.errors[0] }}</div>
+                {% endif %}
+            </div>
+            <div class="mb-3">
+                {{ add_form.country.label(class="form-label") }}
+                {{ add_form.country(class="form-control") }}
+                {% if add_form.country.errors %}
+                    <div class="text-danger">{{ add_form.country.errors[0] }}</div>
                 {% endif %}
             </div>
             {{ add_form.submit(class="btn btn-success") }}
@@ -42,6 +45,7 @@
                 <tr>
                     <th>Tour ID</th>
                     <th>Name</th>
+                    <th>Country</th>
                     <th>Description</th>
                     <th>Departures</th>
                     <th>Actions</th>
@@ -52,6 +56,7 @@
                 <tr>
                     <td>{{ tour.get_tourID() }}</td>
                     <td>{{ tour.get_name() }}</td>
+                    <td>{{ tour.get_country()}}</td>
                     <td>{{ tour.get_description() }}</td>
                     <td>{{ tour.get_departures()|length }}</td>
                     <td>

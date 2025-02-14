@@ -5,10 +5,11 @@ shelve_db = 'database/tour_data'
 
 # Tour Class
 class tour:
-    def __init__(self, name, description):
+    def __init__(self, name, description,country):
         self.__tour_id = None
         self.__name = name
         self.__description = description
+        self.__country = country
         self.__departures = []
 
     def generate_tourID(self):
@@ -37,6 +38,12 @@ class tour:
 
     def remove_departure(self, departure_id):
         self.__departures = [d for d in self.__departures if str(d.get_date()) != str(departure_id)]
+
+    def get_country(self):
+        return self.__country  
+
+    def set_country(self, country):
+        self.__country = country  
 
     def __str__(self):
         return f"Tour: {self.__name}\nDescription: {self.__description}\nDepartures: {len(self.__departures)} available\nID:{self.__tour_id}"
@@ -95,17 +102,17 @@ def get_tour(tour_id):
         return db.get(str(tour_id), None)
 
 
-def create_event(name, desc):
-    t = tour(name, desc)
+def create_event(name, desc, country):
+    t = tour(name, desc, country)  # Include country
     t.generate_tourID()
     save_tour(t)
 
 
 def generateSampleTours():
     if not load_tours():  # Only generate samples if no tours exist
-        create_event("Safari Adventure", "A thrilling safari experience.")
-        create_event("Mountain Hike", "A challenging but rewarding hike in the mountains.")
-        create_event("EcoVenture Tour", "Explore the best of Yishun.")
-        create_event("Tokyo Highlights", "Explore the best of Tokyo in 7 days.")
-        create_event("Kyoto Serenity", "Discover the tranquil temples of Kyoto.")
-        create_event("Osaka Nightlife", "Experience the vibrant nightlife of Osaka.")
+        create_event("Safari Adventure", "A thrilling safari experience.", "Indog")
+        create_event("Mountain Hike", "A challenging but rewarding hike in the mountains.", "Indog")
+        create_event("EcoVenture Tour", "Explore the best of Yishun.", "Singapore")
+        create_event("Tokyo Highlights", "Explore the best of Tokyo in 7 days.", "Japan")
+        create_event("Kyoto Serenity", "Discover the tranquil temples of Kyoto.", "Japan")
+        create_event("Osaka Nightlife", "Experience the vibrant nightlife of Osaka.", "Japan")

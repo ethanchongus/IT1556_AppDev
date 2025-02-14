@@ -13,11 +13,11 @@ app = Flask(__name__)
 app.secret_key = 'ecoventures'
     
 
-
-
 @app.route('/')
 def index():
-    return render_template('index.html')
+    form = SearchTourForm()
+    return render_template('index.html', form=form)
+
 
 # # Flask route for handling 404 errors
 # @app.errorhandler(404)
@@ -34,19 +34,33 @@ def admin_panel():
     return render_template('admin_panel.html')
 
 # ACTIVITIES
-@app.route('/tours/')
+@app.route('/tours/', methods=['GET'])
 def user_viewtours():
-    tours = load_tours()
-    return render_template('user_viewtours.html', tours=tours)
+    tours = load_tours()  # Load all tours
+    selected_countries = request.args.getlist('country')  # Get selected checkboxes
+
+    if 'all' not in selected_countries and selected_countries:
+        tours = [tour for tour in tours if tour.get_country() in selected_countries]
+
+    # Get unique country list for filtering
+    unique_countries = set(tour.get_country() for tour in load_tours())
+
+    return render_template(
+        'user_viewtours.html',
+        tours=tours,
+        countries=unique_countries,
+        selected_countries=selected_countries
+    )
+
 
 
 @app.route('/admin/activities/', methods=['GET', 'POST'])
 @login_required
 def admin_events():
     if not current_user.is_authenticated or not hasattr(current_user, 'is_admin') or not current_user.is_admin():
-        print("User not admin")
         flash("Access denied: Admins only.", "danger")
         return redirect(url_for('index'))
+
     tours = load_tours()
     add_form = AddTourForm()
 
@@ -54,10 +68,11 @@ def admin_events():
         try:
             name = add_form.event_name.data
             desc = add_form.event_desc.data
-            create_event(name, desc)
-            flash(f"Tour '{name}' has been successfully added.", "success")
+            country = add_form.country.data.capitalize()  # Capture country input
+            create_event(name, desc, country)  # Pass country to the event
+            flash(f"Tour '{name}' added.", "success")
         except Exception as e:
-            flash("Failed to add tour. Please try again.", "danger")
+            flash("Failed to add tour.", "danger")
             print(e)
         return redirect(url_for('admin_events'))
     # elif add_form.is_submitted() and not add_form.validate():
@@ -98,6 +113,7 @@ def edit_tour(tour_id):
         if 'basic_edit' in request.form:
             tour.set_name(request.form['name'])
             tour.set_description(request.form['description'])
+            tour.set_country(request.form['country'])
 
         if 'add_departure' in request.form:
             departure_date = request.form['departure_date']

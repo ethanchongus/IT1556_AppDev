@@ -3,23 +3,53 @@
 
 
 {% block head %}
-    <style>
-        
-    </style>
+<style>
+    #mainheader {
+
+        background: url("{{ url_for('static', filename='media/index/hero.png') }}") no-repeat border-box border-box;
+        background-size: cover;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+
 {% endblock %}
 
 {% block content %}
 
-<div class="container align-items-center" id="mainheader" style="height: 500px;">
-    <div class="p-5"> 
-        <h1 style="color: #BEEE62">Explore Responsibly, Travel Sustainably</h1>
+<div class="align-items-center h-auto p-5" id="mainheader" >
+    <div class="col-12 p-5 text-white"> 
+        <!-- <div class="d-flex align-items-center">
+            <img src="{{ url_for('static', filename='media/logo_var2.png') }}" width="200px">
+
+            <h1 class="display-3 m-5 fw-bold">Explore Responsibly, Travel Sustainably</h1>
+        </div> -->
+        <div class="mt-4 mb-4">
+            <img src="{{ url_for('static', filename='media/logo_banner.png') }}" width="600px">
+            <h1 class="display-3 fw-bold">Explore Responsibly, Travel Sustainably</h1>
+        </div>
+        
         <br>
-        <h4 style="color: #BEEE62">Search by Destination</h4>
-        <form class="my-2 my-lg-0">
-            <input class="form-control" type="search" placeholder="Eg. Singapore" aria-label="Search">
-            <!-- <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button> -->
+        <h1 class="display-6 fst-italic">EcoVentures is the sutainable way to travel!</h1>
+        <br>
+        <h4>Search For Tours</h4>
+        <form class="my-2 my-lg-0" action="{{ url_for('user_viewtours') }}" method="GET">
+            <div class="input-group mb-3">
+                {{ form.country(class="form-control", aria_label="Search", aria_describedby="basic-addon2") }}
+                <div class="input-group-append">
+                    <button class="btn btn-success rounded-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                          </svg>
+                          {{ form.submit(class="btn text-white") }}
+                    </button>
+                    
+                </div>
+            </div>
         </form>
+        
     </div>
-   </div>
+</div>
 {% endblock %}
 

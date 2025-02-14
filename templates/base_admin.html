@@ -18,9 +18,9 @@
 </head>
 <body>
     <header>
-      <nav class="navbar navbar-expand-sm navbar-dark bg-dark ">
+      <nav class="navbar flex-column navbar-expand-sm navbar-dark bg-dark ">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{{url_for('index')}}">
+            <a class="navbar-brand" href="{{url_for('admin_panel')}}">
                 <img width="180px" src="{{ url_for('static', filename = 'media/logo_banner.png') }}">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
@@ -46,23 +46,22 @@
                     </ul>
                 </div>
             </div>
-
-
-
         </div>
+        <div class="w-100">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+              {% for category, message in messages %}
+                  <div class="m-3 alert alert-{{ category }} alert-dismissible fade show">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+              {% endfor %}
+          {% endif %}
+          {% endwith %}
+      </div>
     </nav>
 
     </header>
-    <div class="m-3">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-          {% for category, message in messages %}
-              <div class="alert alert-{{ category }} alert-dismissible fade show">{{ message }}</div>
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          {% endfor %}
-      {% endif %}
-      {% endwith %}
-    </div>
     
     {% block content %}
     

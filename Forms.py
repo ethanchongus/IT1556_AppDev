@@ -61,7 +61,7 @@ class AddTourForm(FlaskForm):
         validators=[
             DataRequired(message="Tour name is required."),
             Length(max=100, message="Tour name cannot exceed 100 characters."),
-            unique_tour_name,  # Custom validator
+            unique_tour_name,
         ],
     )
     event_desc = StringField(
@@ -71,11 +71,26 @@ class AddTourForm(FlaskForm):
             Length(max=200, message="Description cannot exceed 200 characters."),
         ],
     )
-    add_form = HiddenField(default="1")
+    country = StringField(
+        "Country",
+        validators=[
+            DataRequired(message="Country is required."),
+            Length(max=50, message="Country name cannot exceed 50 characters."),
+        ],
+    )
     submit = SubmitField("Add Tour")
+
 
 class EditProfileForm(FlaskForm):
     name = StringField('Name', [validators.Length(min=1, max=150), validators.DataRequired()])
     email = EmailField('Email', [validators.Email(), validators.DataRequired()])
     number = StringField('Phone Number', [validators.Length(min=8, max=8), validators.DataRequired()])
     submit = SubmitField('Update Profile')
+
+class SearchTourForm(FlaskForm):
+    country = StringField(
+        "Search by Country",
+        validators=[DataRequired(message="Please enter a country name.")],
+        render_kw={"placeholder": "Eg. Singapore", "oninput": "this.value = this.value.charAt(0).toUpperCase() + this.value.slice(1).toLowerCase()"}
+    )
+    submit = SubmitField("Search")
