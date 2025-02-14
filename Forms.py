@@ -73,3 +73,8 @@ class AddTourForm(FlaskForm):
     add_form = HiddenField(default="1")
     submit = SubmitField("Add Tour")
 
+class EditProfileForm(FlaskForm):
+    name = StringField('Name', [validators.Length(min=1, max=150), validators.DataRequired()])
+    email = EmailField('Email', [validators.Email(), validators.DataRequired()])
+    number = StringField('Phone Number', [validators.Length(min=8, max=8), validators.DataRequired()])
+    submit = SubmitField('Update Profile')

@@ -4,9 +4,10 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from payment_routes import payment_bp
 from admin_routes import admin_bp
 from Forms import *
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from User import User
 from Customer import Customer
+from Forms import EditProfileForm
 
 app = Flask(__name__)
 app.secret_key = 'ecoventures'
@@ -373,6 +374,65 @@ def register_customer():
         return redirect(url_for('index'))
 
     return render_template('register.html', form=create_customer_form)
+
+
+@app.route('/profile', methods=['GET'])
+@login_required
+def profile():
+    customers_dict = {}
+    db = shelve.open('database/customer.db', 'r')
+    try:
+        customers_dict = db['Customers']
+    except:
+        print("Error in retrieving Customers from customer.db.")
+    db.close()
+
+    # Get the current user's ID and use it to find the customer
+    customer_id = int(current_user.get_id())
+    customer = customers_dict.get(customer_id)
+
+    if customer:
+        return render_template('profile.html', customer=customer)
+    else:
+        flash("Customer not found.", "danger")
+        return redirect(url_for('index'))
+
+@app.route('/edit_profile/<int:id>', methods=['GET', 'POST'])
+def edit_profile(id):
+    form = EditProfileForm()
+
+    # Open the shelve database
+    db = shelve.open('database/customer.db', 'c')
+    customers_dict = db.get('Customers', {})
+
+    # Get the customer by ID
+    customer = customers_dict.get(id)
+    if not customer:
+        db.close()
+        return "Customer not found", 404
+
+    # Pre-fill the form fields with the current customer details
+    if request.method == 'GET':
+        form.name.data = customer.get_name()
+        form.email.data = customer.get_email()
+        form.number.data = customer.get_number()
+
+    # Update customer details when form is submitted
+    if form.validate_on_submit():
+        customer.set_name(form.name.data)
+        customer.set_email(form.email.data)
+        customer.set_number(form.number.data)
+        customers_dict[id] = customer
+        db['Customers'] = customers_dict
+        db.close()
+        return redirect(url_for('profile', id=id))
+
+    db.close()
+    return render_template('edit_profile.html', form=form, customer=customer)
+
+
+
+
 
 @login_manager.user_loader
 def load_user(user_id):
