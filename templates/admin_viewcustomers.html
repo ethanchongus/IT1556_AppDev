@@ -17,13 +17,13 @@
         <tbody>
             {% for customer in customers %}
             <tr>
-                <td>{{ customer.purchase_id }}</td>
-                <td>{{ customer.user_name }}</td>
-                <td>{{ customer.user_email }}</td>
-                <td>{{ customer.seats }}</td>
+                <td>{{ customer.get_purchase_id() }}</td>
+                <td>{{ customer.get_user_name() }}</td>
+                <td>{{ customer.get_user_email() }}</td>
+                <td>{{ customer.get_seats() }}</td>
                 <td>
                     <form method="post" action="{{ url_for('remove_customer', tour_id=tour_id, departure_date=departure_date) }}">
-                        <input type="hidden" name="purchase_id" value="{{ customer.purchase_id }}">
+                        <input type="hidden" name="purchase_id" value="{{ customer.get_purchase_id() }}">
                         <button type="submit" class="btn btn-danger btn-sm">Remove</button>
                     </form>
                 </td>

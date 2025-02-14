@@ -19,10 +19,10 @@ app.secret_key = 'ecoventures'
 def index():
     return render_template('index.html')
 
-# Flask route for handling 404 errors
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('error_404_page.html'), 404
+# # Flask route for handling 404 errors
+# @app.errorhandler(404)
+# def page_not_found(e):
+#     return render_template('error_404_page.html'), 404
 
 @app.route('/admin/')
 @login_required
@@ -60,11 +60,11 @@ def admin_events():
             flash("Failed to add tour. Please try again.", "danger")
             print(e)
         return redirect(url_for('admin_events'))
-    elif add_form.is_submitted() and not add_form.validate():
-        # Flash validation errors for the AddTourForm
-        for field, errors in add_form.errors.items():
-            for error in errors:
-                flash(f"Error in {field.replace('_', ' ').title()}: {error}", "danger")
+    # elif add_form.is_submitted() and not add_form.validate():
+    #     # Flash validation errors for the AddTourForm
+    #     for field, errors in add_form.errors.items():
+    #         for error in errors:
+    #             flash(f"Error in {field.replace('_', ' ').title()}: {error}", "danger")
 
 
     if request.method == 'POST':
@@ -96,8 +96,8 @@ def edit_tour(tour_id):
 
     if request.method == 'POST':
         if 'basic_edit' in request.form:
-            tour.name = request.form['name']
-            tour.description = request.form['description']
+            tour.set_name(request.form['name'])
+            tour.set_description(request.form['description'])
 
         if 'add_departure' in request.form:
             departure_date = request.form['departure_date']
@@ -110,11 +110,11 @@ def edit_tour(tour_id):
 
         if 'edit_departure_date' in request.form:
             original_date = request.form['original_departure_date']
-            for departure in tour.departures:
-                if str(departure.date) == str(original_date):
-                    departure.date = request.form['edit_departure_date']
-                    departure.price = float(request.form['edit_departure_price'])
-                    departure.availability = int(request.form['edit_departure_availability'])
+            for departure in tour.get_departures():
+                if str(departure.get_date()) == str(original_date):
+                    departure.set_date(request.form['edit_departure_date'])
+                    departure.set_price(float(request.form['edit_departure_price']))
+                    departure.set_availability(int(request.form['edit_departure_availability']))
                     break
 
         save_tour(tour)  # Save updated tour
@@ -131,9 +131,9 @@ def purchase_tour(tour_id):
 
     # Check for available departures
     available_departures = [
-        (d.date, f"{d.date} - ${d.price} ({d.availability} seats available)")
-        for d in tour.departures
-        if d.availability > 0
+        (d.get_date(), f"{d.get_date()} - ${d.get_price()} ({d.get_availability()} seats available)")
+        for d in tour.get_departures()
+        if d.get_availability() > 0
     ]
 
     if not available_departures:
@@ -151,17 +151,17 @@ def purchase_tour(tour_id):
 
     if form.validate_on_submit():
         selected_departure = next(
-            (d for d in tour.departures if d.date == form.departure_date.data),
+            (d for d in tour.get_departures() if d.get_date() == form.departure_date.data),
             None
         )
 
-        if selected_departure and selected_departure.availability >= form.seats.data:
-            selected_departure.availability -= form.seats.data
+        if selected_departure and selected_departure.get_availability() >= form.seats.data:
+            selected_departure.set_availability(selected_departure.get_availability() - form.seats.data)
             save_tour(tour)
 
             purchase = Purchase(
                 tour_id=tour_id,
-                tour_name=tour.name,  
+                tour_name=tour.get_name(),  
                 departure_date=form.departure_date.data,
                 user_name=current_user.get_name(),
                 user_email=current_user.get_email(),
@@ -182,9 +182,13 @@ def purchase_tour(tour_id):
 def user_bookings():
     purchases = load_purchases()  # Load all purchases
     user_email = current_user.get_email()  # Get the logged-in user's email
-    user_purchases = [purchase for purchase in purchases if purchase.user_email == user_email]  # Filter purchases by email
-    
-    return render_template('user_bookings.html', purchases=user_purchases)
+
+    print(f"Loaded Purchases: {purchases}")  # Debugging line
+    user_purchases = [purchase for purchase in purchases if purchase.get_user_email() == user_email]
+
+    print(f"Filtered Purchases for {user_email}: {user_purchases}")  # Debugging line
+    return render_template('user_bookings.html', bookings=user_purchases)
+
 
 
 @app.route('/admin/activities/<tour_id>/customers/<departure_date>')
@@ -195,8 +199,9 @@ def view_customers(tour_id, departure_date):
         flash("Access denied: Admins only.", "danger")
         return redirect(url_for('index'))
     purchases = load_purchases()
-    customers = [purchase for purchase in purchases if purchase.tour_id == tour_id and purchase.departure_date == departure_date]
+    customers = [purchase for purchase in purchases if purchase.get_tour_id() == tour_id and purchase.get_departure_date() == departure_date]
     return render_template('admin_viewcustomers.html', customers=customers, tour_id=tour_id, departure_date=departure_date)
+
 
 @app.route('/admin/activities/<tour_id>/customers/<departure_date>/remove', methods=['POST'])
 @login_required
@@ -213,9 +218,9 @@ def remove_customer(tour_id, departure_date):
                 tour = get_tour(tour_id)
 
                 # Increment the availability for the removed seats
-                for departure in tour.departures:
-                    if departure.date == departure_date:
-                        departure.availability += purchase.seats
+                for departure in tour.get_departures():
+                    if departure.get_date() == departure_date:
+                        departure.set_availability(departure.get_availability() + purchase.get_seats())
                         break
 
                 # Delete the purchase from the database
@@ -559,7 +564,7 @@ def create_defaultadmin():
 
     db.close()
 
-create_defaultadmin()
+# create_defaultadmin()
 
 if __name__ == '__main__':
     generateSampleTours()

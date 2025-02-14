@@ -51,7 +51,8 @@ class TourPurchaseForm(FlaskForm):
 def unique_tour_name(form, field):
     tours = load_tours()  # Assume this returns a list of existing tours
     for tour in tours:
-        if tour.name.lower() == field.data.lower():
+        tourname = tour.get_name()
+        if tourname.lower() == field.data.lower():
             raise ValidationError(f"The tour name '{field.data}' already exists. Please choose a different name.")
 
 class AddTourForm(FlaskForm):

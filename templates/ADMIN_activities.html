@@ -1,9 +1,7 @@
 {% extends "base_admin.html" %}
 {% block title %}Activities{% endblock %}
 
-
 {% block head %}
-
 {% endblock %}
 
 {% block content %}
@@ -52,27 +50,21 @@
             <tbody>
                 {% for tour in tours %}
                 <tr>
-                    <td>{{ tour.tour_id }}</td>
-                    <td>{{ tour.name }}</td>
-                    <td>{{ tour.description }}</td>
-                    <td>{{ tour.departures|length }}</td>
+                    <td>{{ tour.get_tourID() }}</td>
+                    <td>{{ tour.get_name() }}</td>
+                    <td>{{ tour.get_description() }}</td>
+                    <td>{{ tour.get_departures()|length }}</td>
                     <td>
-                        <form method="POST" >
-                            <a href="{{ url_for('edit_tour', tour_id=tour.tour_id) }}" class="btn btn-primary btn-sm">View More</a>
-                            <input type="hidden" name="delete_tourid" value="{{ tour.tour_id }}">
+                        <form method="POST">
+                            <a href="{{ url_for('edit_tour', tour_id=tour.get_tourID()) }}" class="btn btn-primary btn-sm">View More</a>
+                            <input type="hidden" name="delete_tourid" value="{{ tour.get_tourID() }}">
                             <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                         </form>
-                        
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-    
-
 </div>
-
-
 {% endblock %}
-

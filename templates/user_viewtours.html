@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block title %}View Tours{% endblock %}
 
-
 {% block head %}
 
 {% endblock %}
@@ -13,29 +12,23 @@
     <table class="table table-striped">
         <thead>
             <tr>
-
                 <th>Name</th>
                 <th>Description</th>
                 <th>Departures</th>
                 <th>Action</th>
-                
             </tr>
         </thead>
         <tbody>
             {% for tour in tours %}
             <tr>
-
-                <td>{{ tour.name }}</td>
-                <td>{{ tour.description }}</td>
-                <td>{{ tour.departures|length }}</td>
-                <!-- <td><a href="{{ url_for('purchase_tour', tour_id=tour.tour_id) }}"><img src="{{ url_for('static', filename = 'media/add-to-cart.png') }}" width="25px"></a> Add to Cart</td> -->
-                 <td><a class="btn btn-outline-primary" href="{{ url_for('purchase_tour', tour_id=tour.tour_id) }}">Reserve</a> </td>
+                <td>{{ tour.get_name() }}</td>
+                <td>{{ tour.get_description() }}</td>
+                <td>{{ tour.get_departures()|length }}</td>
+                <td><a class="btn btn-outline-primary" href="{{ url_for('purchase_tour', tour_id=tour.get_tourID()) }}">Reserve</a> </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
 
-
 {% endblock %}
-

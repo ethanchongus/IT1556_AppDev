@@ -8,11 +8,10 @@
     {% if bookings %}
         {% for booking in bookings %}
         <div class="border rounded-lg p-4 mb-4 shadow">
-            <h2 class="text-lg font-semibold">Tour Name: {{ booking.activity.name }}</h2>
-            <p><strong>Departure Date:</strong> {{ booking.activity.date }}</p>
-            <p><strong>Seats Booked:</strong> {{ booking.activity.quantity }}</p>
-            <p><strong>Price:</strong> SGD {{ booking.activity.price }}</p>
-            <p><strong>Purchase ID:</strong> {{ booking.id }}</p>
+            <h2 class="text-lg font-semibold">Tour Name: {{ booking.get_tour_name() }}</h2>
+            <p><strong>Departure Date:</strong> {{ booking.get_departure_date() }}</p>
+            <p><strong>Seats Booked:</strong> {{ booking.get_seats() }}</p>
+            <p><strong>Purchase ID:</strong> {{ booking.get_purchase_id() }}</p>
         </div>
         {% endfor %}
     {% else %}
