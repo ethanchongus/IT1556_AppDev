@@ -250,7 +250,7 @@ def create_user():
     create_user_form = CreateUserForm(request.form)
     if request.method == 'POST' and create_user_form.validate():
         users_dict = {}
-        db = shelve.open('user.db', 'c')
+        db = shelve.open('database/user.db', 'c')
 
         try:
             users_dict = db['Users']
@@ -270,7 +270,7 @@ def create_user():
 @app.route('/retrieveUsers')
 def retrieve_users():
     users_dict = {}
-    db = shelve.open('user.db', 'r')
+    db = shelve.open('database/user.db', 'r')
     users_dict = db['Users']
     db.close()
 
@@ -287,7 +287,7 @@ def update_user(id):
     update_user_form = CreateUserForm(request.form)
     if request.method == 'POST' and update_user_form.validate():
         users_dict = {}
-        db = shelve.open('user.db', 'w')
+        db = shelve.open('database/user.db', 'w')
         users_dict = db['Users']
 
         user = users_dict.get(id)
@@ -305,7 +305,7 @@ def update_user(id):
         return redirect(url_for('retrieve_users'))
     else:
         users_dict = {}
-        db = shelve.open('user.db', 'r')
+        db = shelve.open('database/user.db', 'r')
         users_dict = db['Users']
         db.close()
 
@@ -324,7 +324,7 @@ def update_user(id):
 @app.route('/deleteUser/<int:id>', methods=['POST'])
 def delete_user(id):
     users_dict = {}
-    db = shelve.open('user.db', 'w')
+    db = shelve.open('database/user.db', 'w')
     users_dict = db['Users']
 
     users_dict.pop(id)
@@ -388,7 +388,7 @@ def load_user(user_id):
         db.close()
 
     # Then check admin users
-    db = shelve.open('user.db', 'r')
+    db = shelve.open('database/user.db', 'r')
     try:
         users_dict = db['Users']
         user = users_dict.get(int(user_id))
@@ -456,7 +456,7 @@ def admin_login():
     form = LoginForm(request.form)
     if request.method == 'POST' and form.validate():
         users_dict = {}
-        db = shelve.open('user.db', 'r')  # Open user database
+        db = shelve.open('database/user.db', 'r')  # Open user database
         try:
             users_dict = db['Users']
         except:
@@ -486,7 +486,7 @@ def admin_login():
 
 def create_defaultadmin():
     users_dict = {}
-    db = shelve.open('user.db', 'c')
+    db = shelve.open('database/user.db', 'c')
 
     try:
         users_dict = db['Users']
