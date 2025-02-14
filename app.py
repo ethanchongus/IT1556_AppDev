@@ -24,14 +24,42 @@ def index():
 # def page_not_found(e):
 #     return render_template('error_404_page.html'), 404
 
-@app.route('/admin/')
+@app.route('/admin/', methods=['GET'])
 @login_required
 def admin_panel():
     if not current_user.is_authenticated or not hasattr(current_user, 'is_admin') or not current_user.is_admin():
-        print("User not admin")
         flash("Access denied: Admins only.", "danger")
         return redirect(url_for('index'))
-    return render_template('admin_panel.html')
+
+    tours = load_tours()
+    purchases = load_purchases()
+
+    # Tour Statistics
+    total_tours = len(tours)
+    total_departures = sum(len(tour.get_departures()) for tour in tours)
+    tour_countries = set(tour.get_country() for tour in tours)
+    country_distribution = {country: sum(1 for tour in tours if tour.get_country() == country) for country in tour_countries}
+
+    # Customer Statistics
+    with shelve.open('database/customer.db', 'r') as db:
+        customers = db.get('Customers', {})
+    total_customers = len(customers)
+
+    # Booking Statistics
+    total_bookings = len(purchases)
+    bookings_per_tour = {}
+    for purchase in purchases:
+        tour_name = purchase.get_tour_name()
+        bookings_per_tour[tour_name] = bookings_per_tour.get(tour_name, 0) + 1
+
+    return render_template('admin_dashboard.html',
+                           total_tours=total_tours,
+                           total_departures=total_departures,
+                           country_distribution=country_distribution,
+                           total_customers=total_customers,
+                           total_bookings=total_bookings,
+                           bookings_per_tour=bookings_per_tour)
+
 
 # ACTIVITIES
 @app.route('/tours/', methods=['GET'])
@@ -245,11 +273,11 @@ def remove_customer(tour_id, departure_date):
                 # Save updated tour data
                 save_tour(tour)
 
-                flash("Customer removed successfully.")
+                flash("Customer removed successfully.","info")
             else:
-                flash("Customer not found.")
+                flash("Customer not found.","warning")
     else:
-        flash("Invalid request.")
+        flash("Invalid request.","danger")
 
     return redirect(url_for('view_customers', tour_id=tour_id, departure_date=departure_date))
 
@@ -479,7 +507,10 @@ def load_user(user_id):
         db.close()
         return None
 
-
+@login_manager.unauthorized_handler
+def unauthorized():
+    flash("Kindly log in to access this page.", "warning")
+    return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

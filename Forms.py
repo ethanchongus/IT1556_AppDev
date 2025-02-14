@@ -40,8 +40,8 @@ class LoginForm(Form):
 
 class TourPurchaseForm(FlaskForm):
     departure_date = SelectField('Select Departure Date:', validators=[DataRequired()])
-    user_name = StringField('Your Name:', validators=[DataRequired()])
-    user_email = EmailField('Your Email:', validators=[DataRequired(), Email()])
+    user_name = StringField('Your Name:', validators=[DataRequired()], render_kw={"readonly": True})
+    user_email = EmailField('Your Email:', validators=[DataRequired(), Email()], render_kw={"readonly": True})
     seats = IntegerField('Number of Seats:', validators=[
         DataRequired(),
         NumberRange(min=1, message="Must purchase at least 1 seat")
