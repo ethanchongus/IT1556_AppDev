@@ -49,7 +49,7 @@ class User(UserMixin):
         return self.__phone_number
 
     def get_email(self):
-        return self.__email
+        return self.__email.lower()
 
     # mutator methods
     def set_user_id(self, user_id):

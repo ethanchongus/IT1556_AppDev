@@ -40,7 +40,7 @@
                         <ul class="navbar-nav me-auto">
                             {% if current_user.is_authenticated %}
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Welcome, {{ current_user.get_name() }}</a>
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Welcome, {{ current_user.get_first_name() }} {{ current_user.get_last_name() }}</a>  <!--change-->
                                 <ul class="dropdown-menu">
                                   <li><a class="dropdown-item" href="profile">Profile</a></li>
                                   <li><a class="dropdown-item" href="/user/bookings/">My Bookings</a></li>
