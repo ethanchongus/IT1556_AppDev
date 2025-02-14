@@ -146,7 +146,7 @@ def purchase_tour(tour_id):
 
     # Pre-fill customer details if logged in
     if current_user.is_authenticated:
-        form.user_name.data = f"{current_user.get_first_name()} {current_user.get_last_name()}" #change
+        form.user_name.data = current_user.get_name()
         form.user_email.data = current_user.get_email()
 
     if form.validate_on_submit():
