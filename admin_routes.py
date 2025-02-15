@@ -56,13 +56,10 @@ class AdminPaymentManager:
             payments = db.get('payments', [])
             for i, payment in enumerate(payments):
                 if payment['id'] == payment_id:
-                    # Preserve the original values that shouldn't be updated
+                    # Only update name and email
                     payments[i].update({
                         'name': updated_data['name'],
-                        'email': updated_data['email'],
-                        'card_number': updated_data['card_number'][-4:],  # Store only last 4 digits
-                        'expiry_date': updated_data['expiry_date'],
-                        'cvv': "***"  # Mask CVV
+                        'email': updated_data['email']
                     })
                     db['payments'] = payments
                     return True
@@ -141,22 +138,27 @@ def edit_payment(payment_id: str):
 
     if request.method == 'POST':
         updated_data = {
-            'card_number': request.form.get('card_number', '').replace(' ', ''),
-            'expiry_date': request.form.get('expiry_date', ''),
-            'cvv': request.form.get('cvv', ''),
             'name': request.form.get('name', ''),
             'email': request.form.get('email', '')
         }
 
-        # Validate the update data
-        errors = AdminPaymentValidator.validate_payment_update(updated_data)
+        # Validate only name and email
+        errors = {}
+        
+        # Name validation
+        if not updated_data['name'] or len(updated_data['name']) < 2:
+            errors['name'] = "Name must be at least 2 characters long."
+        
+        # Email validation
+        if '@' not in updated_data['email'] or '.' not in updated_data['email']:
+            errors['email'] = "Enter a valid email address."
 
         if errors:
             return render_template('customer/customer_payment.html', 
                                 errors=errors, 
                                 form_data=payment.to_dict(), 
                                 editing=True,
-                                payment_id=payment_id)  # Add payment_id to the template
+                                payment_id=payment_id)
 
         # Update payment in database
         if admin_payment_manager.update_payment(payment_id, updated_data):
@@ -171,7 +173,7 @@ def edit_payment(payment_id: str):
                          errors={}, 
                          form_data=payment.to_dict(), 
                          editing=True,
-                         payment_id=payment_id)  # Add payment_id to the template
+                         payment_id=payment_id)
 
 @admin_bp.route('/delete/<payment_id>')
 def delete_payment(payment_id: str):
