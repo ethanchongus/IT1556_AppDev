@@ -304,52 +304,51 @@ def user_bookings():
 def view_customers(tour_id, departure_date):
     if not current_user.is_authenticated or not hasattr(current_user, 'is_admin') or not current_user.is_admin():
         flash("Access denied: Admins only.", "danger")
-        return redirect(url_for('index'))
+        return redirect(url_for('index'))  
     tour = get_tour(tour_id)
-    tourname = tour.get_name() 
-    departure_date = departure_date
+    tourname = tour.get_name()
     purchases = load_purchases()
     customers = [purchase for purchase in purchases if purchase.get_tour_id() == tour_id and purchase.get_departure_date() == departure_date]
 
-    return render_template('admin_viewcustomers.html', customers=customers, departure_date = departure_date, tourname=tourname)
+    return render_template('admin_viewcustomers.html', customers=customers, departure_date=departure_date, tourname=tourname, tour_id=tour_id)
 
 
 
-@app.route('/admin/activities/<tour_id>/customers/<departure_date>/remove', methods=['POST'])
+
+@app.route('/admin/activities/<tour_id>/customers/<departure_date>/delete', methods=['POST'])
 @login_required
-def remove_customer(tour_id, departure_date):
+def remove_purchase(tour_id, departure_date):
     if not current_user.is_authenticated or not hasattr(current_user, 'is_admin') or not current_user.is_admin():
-        print("User not admin")
         flash("Access denied: Admins only.", "danger")
         return redirect(url_for('index'))
+
     purchase_id = request.form.get('purchase_id')
-    if purchase_id:
-        with shelve.open(purchase_db) as db:
-            if purchase_id in db:
-                purchase = db[purchase_id]
-                tour = get_tour(tour_id)
+    tour_id = request.form.get('tour_id')  # Get tour_id from the form
 
-                # Increment the availability for the removed seats
-                for departure in tour.get_departures():
-                    if departure.get_date() == departure_date:
-                        departure.set_availability(departure.get_availability() + purchase.get_seats())
-                        break
+    if not tour_id or not purchase_id:
+        flash("Invalid request. Missing tour ID or purchase ID.", "danger")
+        return redirect(url_for('view_customers', tour_id=tour_id, departure_date=departure_date))
 
-                # Delete the purchase from the database
-                del db[purchase_id]
+    with shelve.open(purchase_db, writeback=True) as db:
+        if purchase_id in db:
+            purchase = db[purchase_id]
+            tour = get_tour(tour_id)
 
-                # Save updated tour data
-                save_tour(tour)
+            # Restore seat availability
+            for departure in tour.get_departures():
+                if departure.get_date() == departure_date:
+                    departure.set_availability(departure.get_availability() + purchase.get_seats())
+                    break
 
-                flash("Customer removed successfully.","info")
-            else:
-                flash("Customer not found.","warning")
-    else:
-        flash("Invalid request.","danger")
+            # Delete the purchase
+            del db[purchase_id]
+            save_tour(tour)
+
+            flash("Purchase deleted successfully.", "success")
+        else:
+            flash("Purchase not found.", "danger")
 
     return redirect(url_for('view_customers', tour_id=tour_id, departure_date=departure_date))
-
-
 
 
 

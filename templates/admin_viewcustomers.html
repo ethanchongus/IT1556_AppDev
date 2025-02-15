@@ -12,6 +12,7 @@
                 <th>Email</th>
                 <th>Seats</th>
                 <th>Details</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -21,10 +22,20 @@
                 <td>{{ customer.get_user_name() }}</td>
                 <td>{{ customer.get_user_email() }}</td>
                 <td>{{ customer.get_seats() }}</td>
+
                 <td>
                     <button class="btn btn-info btn-sm" data-bs-toggle="collapse" data-bs-target="#seats{{ customer.get_purchase_id() }}">
                         View Seats
                     </button>
+                </td>
+                <td>
+                    <form action="{{ url_for('remove_purchase', tour_id=tour_id, departure_date=departure_date) }}" method="post">
+                        <input type="hidden" name="purchase_id" value="{{ customer.get_purchase_id() }}">
+                        <input type="hidden" name="tour_id" value="{{ tour_id }}">
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this purchase?');">
+                            Delete
+                        </button>
+                    </form>
                 </td>
             </tr>
             <tr>

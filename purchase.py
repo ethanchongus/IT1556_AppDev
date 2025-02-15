@@ -120,3 +120,8 @@ def save_purchase(purchase):
 def load_purchases():
     with shelve.open(purchase_db) as db:
         return [db[key] for key in db]
+    
+def delete_purchase(purchase_id):
+    with shelve.open(purchase_db, writeback=True) as db:
+        if purchase_id in db:
+            del db[purchase_id]
