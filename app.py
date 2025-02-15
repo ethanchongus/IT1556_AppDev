@@ -172,9 +172,9 @@ def edit_tour(tour_id):
 
     return render_template('Admin_edittours.html', tour=tour)
 
-@app.route('/purchase/<tour_id>', methods=['GET', 'POST'])
+@app.route('/add/<tour_id>', methods=['GET', 'POST'])
 @login_required
-def purchase_tour(tour_id):
+def prepurchase_tour(tour_id):
     cart = Cart(session)
     tour = get_tour(tour_id)
 
@@ -194,7 +194,7 @@ def purchase_tour(tour_id):
         return redirect(url_for('user_viewtours'))
 
     # Create form and populate departure date choices
-    form = TourPurchaseForm()
+    form = TourPrePurchaseForm()
     form.departure_date.choices = available_departures
 
     # Pre-fill user details if logged in
@@ -223,7 +223,7 @@ def purchase_tour(tour_id):
         else:
             flash("Not enough availability for the selected date.", "danger")
 
-    return render_template('purchase_tour.html', form=form, tour=tour)
+    return render_template('prepurchase_tour.html', form=form, tour=tour)
 
 
 

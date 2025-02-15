@@ -46,7 +46,7 @@
                         <td>{{ tour.get_description() }}</td>
                         <td>{{ tour.get_country() }}</td>
                         <td>{{ tour.get_departures()|length }}</td>
-                        <td><a class="btn btn-outline-primary" href="{{ url_for('purchase_tour', tour_id=tour.get_tourID()) }}">Reserve</a></td>
+                        <td><a class="btn btn-outline-primary" href="{{ url_for('prepurchase_tour', tour_id=tour.get_tourID()) }}">Reserve</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>

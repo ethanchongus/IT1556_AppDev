@@ -38,7 +38,7 @@ class LoginForm(Form):
     ])
     password = PasswordField('Password', [validators.DataRequired()])
 
-class TourPurchaseForm(FlaskForm):
+class TourPrePurchaseForm(FlaskForm):
     departure_date = SelectField('Select Departure Date:', validators=[DataRequired()])
     user_name = StringField('Your Name:', validators=[DataRequired()], render_kw={"readonly": True})
     user_email = EmailField('Your Email:', validators=[DataRequired(), Email()], render_kw={"readonly": True})
@@ -46,7 +46,7 @@ class TourPurchaseForm(FlaskForm):
         DataRequired(),
         NumberRange(min=1, message="Must purchase at least 1 seat")
     ])
-    submit = SubmitField('Purchase')
+    submit = SubmitField('Add to Cart')
 
 def unique_tour_name(form, field):
     tours = load_tours()  # Assume this returns a list of existing tours
