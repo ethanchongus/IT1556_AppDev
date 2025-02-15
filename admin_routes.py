@@ -56,9 +56,14 @@ class AdminPaymentManager:
             payments = db.get('payments', [])
             for i, payment in enumerate(payments):
                 if payment['id'] == payment_id:
-                    admin_payment = AdminPayment(payment)
-                    admin_payment.update(updated_data)
-                    payments[i] = admin_payment.to_dict()
+                    # Preserve the original values that shouldn't be updated
+                    payments[i].update({
+                        'name': updated_data['name'],
+                        'email': updated_data['email'],
+                        'card_number': updated_data['card_number'][-4:],  # Store only last 4 digits
+                        'expiry_date': updated_data['expiry_date'],
+                        'cvv': "***"  # Mask CVV
+                    })
                     db['payments'] = payments
                     return True
         return False
@@ -150,7 +155,8 @@ def edit_payment(payment_id: str):
             return render_template('customer/customer_payment.html', 
                                 errors=errors, 
                                 form_data=payment.to_dict(), 
-                                editing=True)
+                                editing=True,
+                                payment_id=payment_id)  # Add payment_id to the template
 
         # Update payment in database
         if admin_payment_manager.update_payment(payment_id, updated_data):
@@ -164,7 +170,8 @@ def edit_payment(payment_id: str):
     return render_template('customer/customer_payment.html', 
                          errors={}, 
                          form_data=payment.to_dict(), 
-                         editing=True)
+                         editing=True,
+                         payment_id=payment_id)  # Add payment_id to the template
 
 @admin_bp.route('/delete/<payment_id>')
 def delete_payment(payment_id: str):
