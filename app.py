@@ -8,10 +8,15 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from User import User
 from Customer import Customer
 from Forms import EditProfileForm
+from api_routes import api_bp
 
 app = Flask(__name__)
 app.secret_key = 'ecoventures'
     
+# Register Blueprints
+app.register_blueprint(payment_bp, url_prefix='/payment')
+app.register_blueprint(admin_bp, url_prefix='/admin/payments')
+app.register_blueprint(api_bp)
 
 @app.route('/')
 def index():
@@ -322,9 +327,6 @@ def remove_customer(tour_id, departure_date):
 
 
 
-# Register Blueprints
-app.register_blueprint(payment_bp, url_prefix='/payment')
-app.register_blueprint(admin_bp, url_prefix='/admin/payments')
 
 # Configure Flask-Login
 login_manager = LoginManager()
