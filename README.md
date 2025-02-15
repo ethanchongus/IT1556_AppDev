@@ -1,6 +1,6 @@
 # IT1556_AppDev
 ### Sample Customer
-User: john@email.com  
+User: john@email.com , jane@email.com
 PW: password
 
 

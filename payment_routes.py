@@ -2,15 +2,18 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 import shelve
 import uuid
 from typing import List, Dict, Optional
+from activities import *
+from purchase import *
+from flask_login import current_user
 
 class CartItem:
-    def __init__(self, activity_id: str, name: str, price: float, departure_date: str, seats: int):
-        self.id = str(uuid.uuid4())
+    def __init__(self, activity_id: str, name: str, price: float, departure_date: str, seats: int, id=None):
+        self.id = id if id else str(uuid.uuid4())  # Assign an ID if not provided
         self.activity_id = activity_id
         self.name = name
-        self.price = price * seats
+        self.price = price * seats  # Ensure price is for total seats
         self.departure_date = departure_date
-        self.seats = seats
+        self.seats = int(seats)  # Convert seats to integer to avoid issues
 
     def to_dict(self) -> Dict:
         return {
@@ -30,7 +33,18 @@ class Cart:
 
     def _load_cart(self):
         cart_data = self.session.get('cart', [])
-        self.items = [CartItem(**item) for item in cart_data]
+        self.items = [
+            CartItem(
+                activity_id=item['activity_id'],
+                name=item['name'],
+                price=float(item['price']) / max(1, int(item['seats'])),  # Restore per-seat price
+                departure_date=item.get('departure_date', None),
+                seats=int(item.get('seats', 1)),  # Ensure seats is loaded as an integer
+                id=item.get('id', str(uuid.uuid4()))  # Keep existing ID if available
+            )
+            for item in cart_data if isinstance(item, dict)  # Ensure item is a valid dictionary
+        ]
+
 
     def save(self):
         self.session['cart'] = [item.to_dict() for item in self.items]
@@ -129,16 +143,26 @@ payment_manager = PaymentManager()
 def add_to_cart(activity_id):
     cart = Cart(session)
     
+    tour = get_tour(activity_id)
+    if not tour:
+        flash("Tour not found.", "danger")
+        return redirect(url_for('user_viewtours'))
+
+    selected_departure = request.form.get('departure_date')  # Retrieve selected departure
+    seats = request.form.get('seats', 1)  # Default to 1 seat if not provided
+
     item = cart.add_item(
         activity_id=activity_id,
-        name=request.form.get('activity_name'),
-        price=float(request.form.get('price')),
-        departure_date=request.form.get('departure_date'),
-        seats=int(request.form.get('seats'))
+        name=tour.get_name(),
+        price=tour.get_departures()[0].get_price(),  # Fetch price dynamically
+        departure_date=selected_departure,
+        seats=int(seats)  # Ensure seats is an integer
     )
     
-    flash(f"{item.name} added to cart.")
+    cart.save()
+    flash(f"{tour.get_name()} added to cart with {seats} seats.", "success")
     return redirect(url_for('payment.view_cart'))
+
 
 @payment_bp.route('/cart')
 def view_cart():
@@ -147,11 +171,11 @@ def view_cart():
                          cart=cart.items, 
                          total_price=cart.get_total())
 
-@payment_bp.route('/remove_from_cart/<cart_id>')
+@payment_bp.route('/remove_from_cart/<cart_id>', methods=['POST'])
 def remove_from_cart(cart_id):
     cart = Cart(session)
     cart.remove_item(cart_id)
-    flash("Item removed from cart.")
+    flash("Item removed from cart.", "success")
     return redirect(url_for('payment.view_cart'))
 
 @payment_bp.route('/checkout', methods=['GET', 'POST'])
@@ -172,7 +196,11 @@ def checkout():
 @payment_bp.route('/customer_payment', methods=['GET', 'POST'])
 def customer_payment():
     cart = Cart(session)
-    
+
+    if cart.is_empty():
+        flash("Your cart is empty!", "danger")
+        return redirect(url_for('payment.view_cart'))
+
     if request.method == 'POST':
         payment_data = {
             'card_number': request.form.get('card_number', '').replace(' ', ''),
@@ -190,6 +218,7 @@ def customer_payment():
                                 cart=cart.items, 
                                 total_price=cart.get_total())
 
+        # Save Payment Details
         payment = Payment(
             name=payment_data['name'],
             email=payment_data['email'],
@@ -199,15 +228,30 @@ def customer_payment():
             cart_items=cart.items,
             total=cart.get_total()
         )
-        
         payment_id = payment_manager.save_payment(payment)
+
+        # Initialize Purchase Class for Each Cart Item
+        for item in cart.items:
+            purchase = Purchase(
+                tour_id=item.activity_id,
+                tour_name=item.name,
+                departure_date=item.departure_date,
+                user_name= current_user.get_name(),
+                user_email= current_user.get_email(),
+                seats=item.seats
+            )
+            save_purchase(purchase)  # Save to database
+
+        # Clear Cart After Purchase
         cart.clear()
-        
+
+        flash("Payment successful! Your bookings have been confirmed.", "success")
         return redirect(url_for('payment.invoice', payment_id=payment_id))
 
     return render_template('customer/customer_payment.html', 
                          cart=cart.items, 
                          total_price=cart.get_total())
+
 
 @payment_bp.route('/invoice/<payment_id>')
 def invoice(payment_id):

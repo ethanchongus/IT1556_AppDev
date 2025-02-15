@@ -18,9 +18,9 @@
                             <h5 class="card-title">{{ item.name }}</h5>
                             <p class="card-text">{{ item.location }}</p>
                             <p class="card-text"><strong>Departure Date:</strong> {{ item.departure_date }}</p>
-                            <p class="card-text"><strong>Seats:</strong> {{ item.quantity }}</p>
+                            <p class="card-text"><strong>Seats:</strong> {{ item.seats }}</p>
                             <p class="card-text"><strong>Price:</strong> SGD {{ item.price }}</p>
-                            <form method="POST" action="{{ url_for('cart.remove', item_id=item.id) }}">
+                            <form method="POST" action="{{ url_for('payment.remove_from_cart', cart_id=item.id) }}">
                                 <button type="submit" class="btn btn-danger">Remove</button>
                             </form>
                         </div>
