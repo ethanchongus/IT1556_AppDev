@@ -20,6 +20,8 @@
 
     <p class="font-bold mt-4">Total: SGD {{ payment.total }}</p>
 
-    <a href="{{ url_for('payment.customer_bookings') }}" class="mt-6 inline-block bg-black text-white px-6 py-2 rounded hover:bg-gray-800">Back to My Bookings</a>
+    <a href="{{ url_for('user_bookings') }}" class="mt-6 inline-block bg-black text-white px-6 py-2 rounded hover:bg-gray-800">
+        Back to My Bookings
+    </a>    
 </div>
 {% endblock %}
