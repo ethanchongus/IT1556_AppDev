@@ -1,6 +1,6 @@
 from activities import *
 from purchase import *
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from payment_routes import *
 from admin_routes import admin_bp
 from Forms import *
@@ -9,6 +9,8 @@ from User import User
 from Customer import Customer
 from Forms import EditProfileForm
 from api_routes import api_bp
+
+import requests
 
 
 app = Flask(__name__)
@@ -19,16 +21,39 @@ app.register_blueprint(payment_bp, url_prefix='/payment')
 app.register_blueprint(admin_bp, url_prefix='/admin/payments')
 app.register_blueprint(api_bp)
 
+
 @app.route('/')
 def index():
     form = SearchTourForm()
     return render_template('index.html', form=form)
 
 
-# # Flask route for handling 404 errors
-# @app.errorhandler(404)
-# def page_not_found(e):
-#     return render_template('error_404_page.html'), 404
+OLLAMA_URL = "http://ollama.ethanos.xyz/api/generate" #crazy cybersecurity, too lz to do env
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    user_message = request.json['message']
+    
+    # Prepare the request for Ollama
+    data = {
+        "model": "ecoventure1",  # Replace with your preferred model
+        "prompt": user_message,
+        "stream": False
+    }
+    
+    try:
+        response = requests.post(OLLAMA_URL, json=data)
+        response.raise_for_status()
+        assistant_response = response.json()['response']
+        return jsonify({'message': assistant_response})
+    except requests.exceptions.RequestException as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# Flask route for handling 404 errors
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('error_404_page.html'), 404
 
 @app.route('/admin/', methods=['GET'])
 @login_required
