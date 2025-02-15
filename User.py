@@ -17,6 +17,11 @@ class User(UserMixin):
         self.__password = password
         self.__is_admin = is_admin
 
+    def get_name(self):
+        """Returns full name (first and last name)"""
+        return f"{self.__first_name} {self.__last_name}"
+
+
     # accessor methods
     def get_id(self):
         return str(self.__user_id)
@@ -88,4 +93,3 @@ class User(UserMixin):
 
     def set_admin(self, is_admin):
         self.__is_admin = is_admin
-

@@ -106,6 +106,9 @@ def customer_payment():
                 'id': payment_id,
                 'name': name,
                 'email': email,
+                'card_number': card_number[-4:],  # Store only last 4 digits for security
+                'expiry_date': expiry_date,
+                'cvv': "***",  # Mask CVV for security
                 'activities': cart,
                 'total': total_price
             })
