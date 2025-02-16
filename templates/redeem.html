@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redeem Rewards</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+{% extends "base.html" %}
+
+{% block title %}Redeem Rewards{% endblock %}
+
+{% block head %}
     <style>
         .voucher-card {
             border: 1px solid #ddd;
@@ -35,8 +33,9 @@
             background-color: #218838;
         }
     </style>
-</head>
-<body>
+{% endblock %}  <!-- ✅ Fix: Closing the head block properly -->
+
+{% block content %}
     <div class="container mt-5">
         <h1 class="text-center">Redeem Your Rewards</h1>
         <h3 class="text-center">Total Points: {{ user_data.total_points }}</h3>
@@ -61,5 +60,4 @@
             <a href="/rewards/earn" class="btn btn-secondary">Go to Earn</a>
         </div>
     </div>
-</body>
-</html>
+{% endblock %}  <!-- ✅ Fix: Closing the content block properly -->
