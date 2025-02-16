@@ -49,6 +49,10 @@ def chat():
     except requests.exceptions.RequestException as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/about/')
+def aboutus():
+    return render_template('aboutus.html')
+
 
 # Flask route for handling 404 errors
 @app.errorhandler(404)

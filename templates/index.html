@@ -158,8 +158,9 @@
 </div>
 
 <div class="container mt-5 ">
-
-    <h1>Why Ecoventures?</h1>
+    <h2 class="fw-bold">Why <span class="text-success">EcoVentures?</span></h2>
+    
+    
     <div class="row">
         <div class="col-3">
             <img src="{{ url_for('static', filename='media/logo_var2.png') }}" width="100%">
@@ -184,17 +185,20 @@
                     From eco-lodges to zero-waste activities, we ensure that every aspect of your journey aligns with responsible tourism.
                 </li>
             </ul>
-
-
         </div>
-
+        <div class="container my-5">
+            <h2 class="fw-bold">What is <span class="text-success">Sustainable Tourism?</span></h2>
+            <p class="lead text-muted">
+                Sustainable tourism is about exploring the world while protecting it. It minimizes environmental impact, 
+                supports local communities, and preserves cultural heritage for future generations. At 
+                <strong>EcoVentures Singapore</strong>, we believe in responsible travel—ensuring that every journey leaves a 
+                positive footprint on the planet.
+            </p>
+            <a href="{{url_for('aboutus')}}" class="btn btn-success float-end px-4 py-2">Learn More</a>
+        </div>
     </div>
 
-
-
-
 </div>
-
 
 
 <div class="container mt-5 w-100">
