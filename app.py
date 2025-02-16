@@ -9,13 +9,15 @@ from User import User
 from Customer import Customer
 from Forms import EditProfileForm
 from api_routes import api_bp
-
+from feedback import *
+from earn import *
 import requests
 
 
 app = Flask(__name__)
 app.secret_key = 'ecoventures'
-    
+
+feedback_manager = FeedbackManager()
 # Register Blueprints
 app.register_blueprint(payment_bp, url_prefix='/payment')
 app.register_blueprint(admin_bp, url_prefix='/admin/payments')
@@ -679,8 +681,191 @@ def create_defaultadmin():
 
     db.close()
 
-# create_defaultadmin()
 
+
+
+def get_user():
+    if 'username' not in session:
+        session['username'] = 'NewUser'
+
+    username = session['username']
+
+    # ✅ Corrected: Only pass `username`
+    return User(username)
+
+
+
+
+@app.route('/feedback', methods=['GET', 'POST'])
+def feedback_page():
+    if request.method == 'POST':
+        # Retrieve form data
+        rating1 = request.form.get('rating1')
+        rating2 = request.form.get('rating2')
+        feedback_text = request.form.get('feedback_text')
+
+        # Validate user input
+        if feedback_manager.validate(rating1, rating2, feedback_text):
+            # Save feedback
+            feedback_manager.save_feedback(rating1, rating2, feedback_text)
+            flash("Thank you for your response!", "success")
+            return redirect('/')  # Redirect to the homepage after submission
+        else:
+            # Flash validation errors
+            for error in feedback_manager.errors:
+                flash(error, "danger")
+
+    # Render feedback form template
+    return render_template('cusfb.html')
+
+
+
+@app.route('/admin/feedback/', methods=['GET', 'POST'])
+def admin_feedback():
+    feedback_list = feedback_manager.get_all_feedback()
+
+    if request.method == 'POST':
+        feedback_id = request.form.get('feedback_id')
+        if 'reply' in request.form:
+            # Handle reply submission
+            reply = request.form.get('reply_text')
+            try:
+                feedback_manager.reply_to_feedback(feedback_id, reply)
+                flash(f"Reply added to feedback ID {feedback_id}.", "success")
+            except KeyError as e:
+                flash(str(e), "danger")
+        elif 'delete' in request.form:
+            # Handle feedback deletion
+            try:
+                feedback_manager.delete_feedback(feedback_id)
+                flash(f"Feedback ID {feedback_id} deleted successfully.", "success")
+            except KeyError as e:
+                flash(str(e), "danger")
+
+        # Reload the feedback list after modification
+        feedback_list = feedback_manager.get_all_feedback()
+
+    return render_template('ADMIN_feedback.html', feedback_list=feedback_list)
+
+def get_tasks():
+    return [
+        {"name": "Complete a Tour Review", "points": 10},
+        {"name": "Refer a Friend", "points": 20},
+        {"name": "Book 3 Tours", "points": 30},
+        {"name": "Share on Social Media", "points": 5},
+    ]
+
+
+@app.route('/rewards/earn')
+def rewards():
+    user = get_user()
+    tasks = get_tasks()
+    return render_template('rewards.html', section='earn', data={'tasks': tasks}, user_data={
+        'username': user.username,  # Use first_name instead of username
+        'total_points': user.total_points,
+        'daily_points': user.daily_points,
+        'streak': user.streak
+    })
+
+
+@app.route('/rewards/earn', methods=['GET', 'POST'])
+def earn():
+    user = get_user()
+    if request.method == 'POST':
+        task_name = request.form['task_name']
+        if complete_task(user, task_name):
+            flash(f"Task '{task_name}' completed! Points added.", "success")
+        else:
+            flash("Task completion failed. Try again.", "danger")
+
+    tasks = get_tasks()
+    return render_template('rewards.html', section='earn', data={'tasks': tasks}, user_data={
+        'username': user.username,
+        'total_points': user.total_points,
+        'daily_points': user.daily_points,
+        'streak': user.streak
+    })
+
+@app.route('/rewards/earn/quiz', methods=['GET', 'POST'])
+def quiz():
+    user = get_user()
+    total_points = 0
+    score = 0
+
+    last_quiz_time = session.get(f'{user.username}_last_quiz_time', None)
+    if last_quiz_time is not None:
+        last_quiz_time = last_quiz_time.replace(tzinfo=None)
+        if datetime.now() - last_quiz_time < timedelta(days=1) and user.streak > 0:
+            flash("You can only take the quiz once every 24 hours.", "danger")
+            return redirect('/rewards/earn')
+
+    if request.method == 'POST':
+        answer_1 = request.form.get('answer_1')
+        answer_2 = request.form.get('answer_2')
+
+        if answer_1 == 'train':
+            score += 1
+            total_points += 25
+        if answer_2 == 'sweden':
+            score += 1
+            total_points += 25
+
+        if score == 2:
+            user.total_points += total_points
+            user.streak += 1
+            user.save()
+            flash(f"You got {score} out of 2 questions right! {total_points} points added.", "success")
+            session[f'{user.username}_last_quiz_time'] = datetime.now()  # Update the last quiz time
+        else:
+            flash(f"You got {score} out of 2 questions right. Try again!", "danger")
+
+        return redirect('/rewards/earn')
+
+    return render_template('quiz.html')
+
+
+@app.route('/reset_cd', methods=['GET'])
+def reset_cd():
+    user = get_user()
+    session[f'{user.username}_last_quiz_time'] = None
+    flash("Cooldown reset. You can now retake the quiz.", "success")
+    return redirect('/rewards/earn')
+
+@app.route('/reset_streak', methods=['GET'])
+def reset_streak():
+    user = get_user()
+    user.total_points = 0
+    user.daily_points = 0
+    user.streak = 0
+    user.save()
+    flash("Streak and points have been reset.", "success")
+    return redirect('/rewards/earn')
+
+
+
+@app.route('/rewards/redeem', methods=['GET', 'POST'])
+def redeem():
+    user = get_user()
+    if request.method == 'POST':
+        reward_name = request.form['reward_name']
+        reward_points = int(request.form['reward_points'])
+
+        if user.total_points >= reward_points:
+            user.total_points -= reward_points
+            session['total_points'] = user.total_points
+            flash(f"Successfully redeemed {reward_name} for {reward_points} points!", "success")
+        else:
+            flash("Not enough points to redeem this reward.", "danger")
+
+    rewards = [
+        {'name': 'Voucher A', 'points': 50},
+        {'name': 'Voucher B', 'points': 100},
+        {'name': 'Voucher C', 'points': 150}
+    ]
+    return render_template('redeem.html', rewards=rewards, user_data={
+        'username': user.username,
+        'total_points': user.total_points,
+    })
 if __name__ == '__main__':
     generateSampleTours()
     app.run(debug=True)
