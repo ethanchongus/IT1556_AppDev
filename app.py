@@ -598,7 +598,7 @@ def login():
     form = LoginForm(request.form)
     if request.method == 'POST' and form.validate():
         users_dict = {}
-        db = shelve.open('database/customer.db', 'r')
+        db = shelve.open('database/customer.db', 'c')
         try:
             users_dict = db['Customers']
         except:

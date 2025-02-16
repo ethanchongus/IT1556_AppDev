@@ -1,98 +1,33 @@
 {% extends "base.html" %}
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 {% block title %}My Bookings{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="">Your Bookings</h1>
+<div class="container my-5">
+    <h2 class="text-center">My Bookings</h2>
 
     {% if purchases %}
-        {% for purchase in purchases %}
-        <div class="border rounded-lg p-4 m-4 shadow">
-            <h2 class="text-lg font-semibold">Tour Name: {{ purchase.get_tour_name() }}</h2>
-            <p><strong>Departure Date:</strong> {{ purchase.get_departure_date() }}</p>
-            <p><strong>Seats Booked:</strong> {{ purchase.get_seats() }}</p>
-            <p><strong>Purchase ID:</strong> {{ purchase.get_purchase_id() }}</p>
+        <div class="row">
+            {% for purchase in purchases %}
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ purchase.tour_name }}</h5>
+                        <p class="card-text"><strong>Location:</strong> {{ purchase.location }}</p>
+                        <p class="card-text"><strong>Departure Date:</strong> {{ purchase.departure_date }}</p>
+                        <p class="card-text"><strong>Seats:</strong> {{ purchase.seats }}</p>
+                        <p class="card-text"><strong>Total Price:</strong> SGD {{ purchase.total_price }}</p>
 
-            <!-- Bootstrap Accordion for Passenger Details -->
-            <div class="accordion" id="accordion{{ purchase.get_purchase_id() }}">
-                {% for i in range(purchase.get_seats()) %}
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="heading{{ purchase.get_purchase_id() }}{{ i }}">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ purchase.get_purchase_id() }}{{ i }}" aria-expanded="false" aria-controls="collapse{{ purchase.get_purchase_id() }}{{ i }}">
-                            Seat {{ i+1 }} - {% if i < purchase.get_passengers()|length %} {{ purchase.get_passengers()[i].get_name() }} {% else %} Unassigned {% endif %}
-                        </button>
-                    </h2>
-                    <div id="collapse{{ purchase.get_purchase_id() }}{{ i }}" class="accordion-collapse collapse" aria-labelledby="heading{{ purchase.get_purchase_id() }}{{ i }}" data-bs-parent="#accordion{{ purchase.get_purchase_id() }}">
-                        <div class="accordion-body">
-                            <form method="POST">
-                                {{ passenger_form.hidden_tag() }}
-                                <input type="hidden" name="purchase_id" value="{{ purchase.get_purchase_id() }}">
-                                <input type="hidden" name="seat_number" value="{{ i }}">
-
-                                <div class="mb-3">
-                                    {{ passenger_form.name.label(class="form-label") }}
-                                    <input type="text" class="form-control" name="name" value="{% if i < purchase.get_passengers()|length %}{{ purchase.get_passengers()[i].get_name() }}{% endif %}">
-                                </div>
-
-                                <div class="mb-3">
-                                    {{ passenger_form.age.label(class="form-label") }}
-                                    <input type="number" class="form-control" name="age" value="{% if i < purchase.get_passengers()|length %}{{ purchase.get_passengers()[i].get_age() }}{% endif %}">
-                                </div>
-
-                                <div class="mb-3">
-                                    {{ passenger_form.passport_number.label(class="form-label") }}
-                                    <input type="text" class="form-control" name="passport_number" value="{% if i < purchase.get_passengers()|length %}{{ purchase.get_passengers()[i].get_passport_number() }}{% endif %}">
-                                </div>
-
-                                <div class="mb-3">
-                                    {{ passenger_form.contact_number.label(class="form-label") }}
-                                    <input type="text" class="form-control" name="contact_number" value="{% if i < purchase.get_passengers()|length %}{{ purchase.get_passengers()[i].get_contact_number() }}{% endif %}">
-                                </div>
-
-                                <div class="mb-3">
-                                    {{ passenger_form.email.label(class="form-label") }}
-                                    <input type="email" class="form-control" name="email" value="{% if i < purchase.get_passengers()|length %}{{ purchase.get_passengers()[i].get_email() }}{% endif %}">
-                                </div>
-
-                                <button type="submit" class="btn btn-primary">Save Passenger</button>
-                            </form>
-                        </div>
+                        <form method="POST" action="{{ url_for('cancel_booking', booking_id=purchase.id) }}">
+                            <button type="submit" class="btn btn-danger">Cancel Booking</button>
+                        </form>
                     </div>
                 </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endfor %}
-    {% endif %}
-</div>
-{% endblock %}
-=======
-=======
->>>>>>> 2686c229902aebf37f5ff723aeb916735efbb276
-{% block title %}Your Bookings{% endblock %}
-{% block content %}
-<div class="container my-5">
-    <h1 class="text-center">Your Bookings</h1>
-    {% if purchases %}
-        <div class="list-group">
-            {% for purchase in purchases %}
-            <div class="list-group-item">
-                <h5>Tour Name: {{ purchase.name }}</h5>
-                <p>Departure Date: {{ purchase.departure_date }}</p>
-                <p>Seats Booked: {{ purchase.seats }}</p>
-                <p>Purchase ID: {{ purchase.purchase_id }}</p>
             </div>
             {% endfor %}
         </div>
     {% else %}
-        <p class="text-center text-muted">You have no bookings yet. Start exploring and booking tours!</p>
+        <p class="text-center">You have no bookings.</p>
     {% endif %}
 </div>
-<<<<<<< HEAD
 {% endblock %}
->>>>>>> rewards
-=======
-{% endblock %}
->>>>>>> 2686c229902aebf37f5ff723aeb916735efbb276
