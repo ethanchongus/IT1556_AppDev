@@ -1,16 +1,177 @@
-<form method="POST" action="/rewards/earn/quiz">
-    <div class="question">
-        <label>What is the most eco-friendly way to travel?</label>
-        <input type="radio" name="answer_1" value="car"> Car
-        <input type="radio" name="answer_1" value="train"> Train
-        <input type="radio" name="answer_1" value="plane"> Plane
+{% extends "base.html" %}
+
+{% block title %}Eco Tour Quiz{% endblock %}
+
+{% block head %}
+    <style>
+        .quiz-container {
+            max-width: 700px;
+            margin: 50px auto;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+        .quiz-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .quiz-description {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 25px;
+        }
+        .question {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+            transition: background 0.3s ease;
+        }
+        .question:hover {
+            background: #e9ecef;
+        }
+        .question label {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .question .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .question input {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #28a745;
+            border-radius: 50%;
+            outline: none;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .question input:checked {
+            background: #28a745;
+            border: 5px solid white;
+            box-shadow: 0px 0px 0px 2px #28a745;
+        }
+        .quiz-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            font-size: 18px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .quiz-btn:hover {
+            background: #218838;
+        }
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: #28a745;
+            transition: width 0.3s ease;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="quiz-container">
+        <h1 class="quiz-title">🌱 Eco Tour Quiz</h1>
+        <p class="quiz-description">Answer all 5 questions correctly to earn points! <br> Once completed, you can retake this quiz in **24 hours**.</p>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        {% if cooldown_active %}
+    <div class="cooldown-message">
+        <p>⏳ You have already completed this quiz. Try again in 24 hours!</p>
+        <a href="{{ url_for('rewards') }}" class="btn btn-secondary">Go Back</a>
     </div>
-    <div class="question">
-        <label>Which country is known for its eco-friendly tourism practices?</label>
-        <input type="radio" name="answer_2" value="sweden"> Sweden
-        <input type="radio" name="answer_2" value="france"> France
-        <input type="radio" name="answer_2" value="usa"> USA
+{% else %}
+            <form method="POST" action="/rewards/earn/quiz">
+                <div class="question">
+                    <label>1. What is the most eco-friendly way to travel?</label>
+                    <div class="options">
+                        <label><input type="radio" name="answer_1" value="car"> Car</label>
+                        <label><input type="radio" name="answer_1" value="train"> Train</label>
+                        <label><input type="radio" name="answer_1" value="plane"> Plane</label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <label>2. Which country is known for its eco-friendly tourism practices?</label>
+                    <div class="options">
+                        <label><input type="radio" name="answer_2" value="sweden"> Sweden</label>
+                        <label><input type="radio" name="answer_2" value="france"> France</label>
+                        <label><input type="radio" name="answer_2" value="usa"> USA</label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <label>3. What is the best way to reduce plastic waste while traveling?</label>
+                    <div class="options">
+                        <label><input type="radio" name="answer_3" value="buy"> Buy bottled water</label>
+                        <label><input type="radio" name="answer_3" value="bring"> Bring a reusable bottle</label>
+                        <label><input type="radio" name="answer_3" value="throw"> Throw plastics in the ocean</label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <label>4. Which of these accommodations is the most eco-friendly?</label>
+                    <div class="options">
+                        <label><input type="radio" name="answer_4" value="resort"> Large all-inclusive resort</label>
+                        <label><input type="radio" name="answer_4" value="hotel"> Luxury 5-star hotel</label>
+                        <label><input type="radio" name="answer_4" value="eco-lodge"> Eco-lodge or green hotel</label>
+                    </div>
+                </div>
+
+                <div class="question">
+                    <label>5. What is the impact of flying on the environment?</label>
+                    <div class="options">
+                        <label><input type="radio" name="answer_5" value="low"> Low carbon footprint</label>
+                        <label><input type="radio" name="answer_5" value="neutral"> No impact on climate</label>
+                        <label><input type="radio" name="answer_5" value="high"> High carbon emissions</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="quiz-btn">Submit Answers</button>
+            </form>
+        {% endif %}
     </div>
-    <!-- Add more questions as needed -->
-    <button type="submit">Submit</button>
-</form>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let totalQuestions = 5;
+            let answered = 0;
+            let progressBar = document.getElementById("progressBar");
+
+            document.querySelectorAll("input[type=radio]").forEach(input => {
+                input.addEventListener("change", function () {
+                    answered = document.querySelectorAll("input[type=radio]:checked").length;
+                    progressBar.style.width = (answered / totalQuestions) * 100 + "%";
+                });
+            });
+        });
+    </script>
+{% endblock %}

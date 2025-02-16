@@ -4,62 +4,143 @@
 
 {% block head %}
     <style>
-        .voucher-card {
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-            background-color: #f9f9f9;
+        .points-section {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .points-card {
+            background: linear-gradient(135deg, #28a745, #218838);
+            border-radius: 15px;
+            padding: 30px;
+            width: 220px;
             text-align: center;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease-in-out;
+        }
+        .points-card:hover {
+            transform: scale(1.05);
+        }
+        .points-card h4 {
+            font-size: 22px;
+            font-weight: bold;
+        }
+        .points-card p {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 0;
+        }
+        .icon {
+            font-size: 45px;
+            margin-bottom: 10px;
+        }
+        .streak-card {
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+        }
+
+        .voucher-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .voucher-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            width: 320px; /* Make all voucher cards equal in size */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease-in-out;
+        }
+        .voucher-card:hover {
+            transform: scale(1.07);
+        }
+        .voucher-card img {
+            width: 140px; /* Make voucher images bigger */
+            margin-bottom: 15px;
         }
         .voucher-card h5 {
             font-size: 1.5rem;
-            margin-bottom: 10px;
+            font-weight: bold;
+            margin-bottom: 8px;
         }
         .voucher-card p {
-            font-size: 1rem;
+            font-size: 1.2rem;
+            color: #555;
             margin-bottom: 15px;
         }
-        .voucher-card button {
-            background-color: #28a745;
+        .redeem-btn {
+            background: #28a745;
             color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 1rem;
-            border-radius: 5px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1.1rem;
             cursor: pointer;
+            border: none;
         }
-        .voucher-card button:hover {
-            background-color: #218838;
+        .redeem-btn:hover {
+            background: #218838;
+        }
+
+        /* Adjust "Go to Earn" button position */
+        .earn-btn-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 50px;
         }
     </style>
-{% endblock %} 
+{% endblock %}
 
 {% block content %}
     <div class="container mt-5">
-        <h1 class="text-center">Redeem Your Rewards</h1>
-        <h3 class="text-center">Total Points: {{ user_data.total_points }}</h3>
+        <h1 class="text-center">🎁 Redeem Rewards</h1>
 
-        <div class="row">
+        <!-- Reusable Points Section -->
+        <div class="points-section">
+            <div class="points-card">
+                <div class="icon">⭐</div>
+                <h4>Total Points</h4>
+                <p>{{ user_data.total_points | default(0) }}</p>
+            </div>
+
+            <div class="points-card streak-card">
+                <div class="icon">🔥</div>
+                <h4>Streak</h4>
+                <p>{{ user_data.streak }} Days</p>
+            </div>
+        </div>
+
+        <div class="voucher-container">
             {% for reward in rewards %}
-            <div class="col-md-4">
-                <div class="voucher-card">
-                    <h5>{{ reward.name }}</h5>
-                    <p>{{ reward.points }} points</p>
-                    <form action="/rewards/redeem" method="POST">
-                        <input type="hidden" name="reward_name" value="{{ reward.name }}">
-                        <input type="hidden" name="reward_points" value="{{ reward.points }}">
-                        <button type="submit">Redeem</button>
-                    </form>
-                </div>
+            <div class="voucher-card">
+                {% if reward.name == 'Voucher A' %}
+                    <img src="{{ url_for('static', filename='media/voucher_red.png') }}" alt="Voucher A">
+                {% elif reward.name == 'Voucher B' %}
+                    <img src="{{ url_for('static', filename='media/voucher_blue.png') }}" alt="Voucher B">
+                {% elif reward.name == 'Voucher C' %}
+                    <img src="{{ url_for('static', filename='media/voucher_yellow.png') }}" alt="Voucher C">
+                {% else %}
+                    <img src="{{ url_for('static', filename='media/default_voucher.png') }}" alt="Voucher">
+                {% endif %}
+
+                <h5>{{ reward.name }}</h5>
+                <p>{{ reward.points }} points</p>
+
+                <form action="/rewards/redeem" method="POST">
+                    <input type="hidden" name="reward_name" value="{{ reward.name }}">
+                    <input type="hidden" name="reward_points" value="{{ reward.points }}">
+                    <button type="submit" class="redeem-btn">Redeem</button>
+                </form>
             </div>
             {% endfor %}
         </div>
 
-        <div class="text-center mt-4">
-            <a href="/rewards/earn" class="btn btn-secondary">Go to Earn</a>
+        <div class="earn-btn-container">
+            <a href="/rewards/earn" class="btn btn-secondary">⬅ Go to Earn</a>
         </div>
     </div>
-{% endblock %} 
-
-#test
+{% endblock %}

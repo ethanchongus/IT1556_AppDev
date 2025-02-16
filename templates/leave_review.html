@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Leave a Review{% endblock %}
+
+{% block head %}
+    <style>
+        .review-container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .review-container h1 {
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            resize: vertical;
+        }
+        .submit-btn {
+            margin-top: 15px;
+            width: 100%;
+            padding: 12px;
+            background: #28a745;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background: #218838;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="review-container">
+            <h1>📝 Leave a Review</h1>
+            <p>Write a review about your experience! Earn <b>+20 points</b> for submitting a review. <br> You can only submit once every <b>24 hours</b>.</p>
+            
+            <form method="POST" action="{{ url_for('submit_review') }}">
+    <textarea name="review" rows="4" placeholder="Write your review here..." required></textarea>
+    <button type="submit" class="submit-btn">Submit Review</button>
+</form>
+
+        </div>
+    </div>
+{% endblock %}

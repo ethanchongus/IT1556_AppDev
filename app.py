@@ -12,6 +12,8 @@ from api_routes import api_bp
 from feedback import *
 from earn import *
 import requests
+from datetime import datetime, timedelta
+
 
 
 app = Flask(__name__)
@@ -585,9 +587,7 @@ def unauthorized():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        # Redirect to the stored URL or the homepage if already logged in
-        next_url = session.pop('next', None)
-        return redirect(next_url or url_for('index'))
+        return redirect(url_for('index'))
 
     form = LoginForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -611,12 +611,9 @@ def login():
 
         if user and user.get_password() == form.password.data:
             login_user(user)
+            session['username'] = user.get_name()  # Store the user's name in session
             flash('Logged in successfully.', 'success')
-            
-            # Retrieve the next URL stored in the session
-            next_url = session.pop('next', None)
-            
-            return redirect(next_url or url_for('index'))  # Redirect to the stored URL or homepage
+            return redirect(url_for('index'))
         else:
             flash('Invalid email or password.', 'danger')
 
@@ -627,8 +624,10 @@ def login():
 @login_required
 def logout():
     logout_user()
+    session.pop('username', None)  # Remove username from session
     flash('Logged out successfully.', 'success')
     return redirect(url_for('index'))
+
 
 @app.route('/admin_login', methods=['GET', 'POST'])
 def admin_login():
@@ -685,13 +684,10 @@ def create_defaultadmin():
 
 
 def get_user():
-    if 'username' not in session:
-        session['username'] = 'NewUser'
+    if current_user.is_authenticated:
+        return User(current_user.get_name())  # Use the logged-in user's actual name
+    return User("NewUser")  # Default if no one is logged in
 
-    username = session['username']
-
-    # ✅ Corrected: Only pass `username`
-    return User(username)
 
 
 
@@ -720,7 +716,8 @@ def feedback_page():
 
 
 
-@app.route('/admin/feedback/', methods=['GET', 'POST'])
+@app.route('/admin/feedback', methods=['GET', 'POST'])
+@login_required
 def admin_feedback():
     feedback_list = feedback_manager.get_all_feedback()
 
@@ -745,15 +742,28 @@ def admin_feedback():
         # Reload the feedback list after modification
         feedback_list = feedback_manager.get_all_feedback()
 
-    return render_template('ADMIN_feedback.html', feedback_list=feedback_list)
+    return render_template('adminfb.html', feedback_list=feedback_list)
 
 def get_tasks():
     return [
-        {"name": "Complete a Tour Review", "points": 10},
-        {"name": "Refer a Friend", "points": 20},
-        {"name": "Book 3 Tours", "points": 30},
-        {"name": "Share on Social Media", "points": 5},
+        {
+            'name': 'Complete the Eco Tour Quiz',
+            'description': 'Answer eco-tourism questions to earn points.',
+            'points': 50
+        },
+        {
+            'name': 'Browse a Tour',
+            'description': 'Visit at least one tour page to explore destinations.',
+            'points': 10
+        },
+        {
+            'name': 'Leave a Review',
+            'description': 'Write a review for a tour you have experienced.',
+            'points': 20
+        }
     ]
+
+
 
 
 @app.route('/rewards/earn')
@@ -773,6 +783,12 @@ def earn():
     user = get_user()
     if request.method == 'POST':
         task_name = request.form['task_name']
+
+        if task_name == "Browse a Tour":
+            session['browsed_tour'] = True  # Track tour browsing
+        elif task_name == "Leave a Review":
+            session['left_review'] = True  # Track review submission
+
         if complete_task(user, task_name):
             flash(f"Task '{task_name}' completed! Points added.", "success")
         else:
@@ -782,70 +798,92 @@ def earn():
     return render_template('rewards.html', section='earn', data={'tasks': tasks}, user_data={
         'username': user.username,
         'total_points': user.total_points,
-        'daily_points': user.daily_points,
         'streak': user.streak
     })
+
+from datetime import datetime, timedelta
 
 @app.route('/rewards/earn/quiz', methods=['GET', 'POST'])
 def quiz():
     user = get_user()
-    total_points = 0
-    score = 0
+    total_points = 50
+    correct_answers = {
+        'answer_1': 'train',
+        'answer_2': 'sweden',
+        'answer_3': 'bring',
+        'answer_4': 'eco-lodge',
+        'answer_5': 'high'
+    }
 
-    last_quiz_time = session.get(f'{user.username}_last_quiz_time', None)
-    if last_quiz_time is not None:
-        last_quiz_time = last_quiz_time.replace(tzinfo=None)
-        if datetime.now() - last_quiz_time < timedelta(days=1) and user.streak > 0:
-            flash("You can only take the quiz once every 24 hours.", "danger")
-            return redirect('/rewards/earn')
+    last_quiz_time = session.get(f'{user.username}_last_quiz_time')
+
+    if isinstance(last_quiz_time, str):
+        last_quiz_time = datetime.fromisoformat(last_quiz_time)
+
+    if last_quiz_time and datetime.now() - last_quiz_time < timedelta(hours=24):
+        flash("⏳ You can take the quiz again in 24 hours.", "warning")
+        return render_template('quiz.html', cooldown_active=True)
 
     if request.method == 'POST':
-        answer_1 = request.form.get('answer_1')
-        answer_2 = request.form.get('answer_2')
+        user_answers = {key: request.form.get(key, "") for key in correct_answers.keys()}
 
-        if answer_1 == 'train':
-            score += 1
-            total_points += 25
-        if answer_2 == 'sweden':
-            score += 1
-            total_points += 25
+        if user_answers == correct_answers:
+            user.total_points += total_points  # Always add points
 
-        if score == 2:
-            user.total_points += total_points
-            user.streak += 1
+            # Update streak only if it's the first task of the day
+            today = datetime.today().date()
+            if user.last_streak_update != str(today):
+                user.streak += 1
+                user.last_streak_update = str(today)
+
             user.save()
-            flash(f"You got {score} out of 2 questions right! {total_points} points added.", "success")
-            session[f'{user.username}_last_quiz_time'] = datetime.now()  # Update the last quiz time
+            session[f'{user.username}_last_quiz_time'] = datetime.now().isoformat()
+            flash(f"🎉 Perfect Score! You earned {total_points} points.", "success")
         else:
-            flash(f"You got {score} out of 2 questions right. Try again!", "danger")
+            flash("❌ You must get all answers correct. Try again tomorrow!", "danger")
 
         return redirect('/rewards/earn')
 
-    return render_template('quiz.html')
+    return render_template('quiz.html', cooldown_active=False)
 
 
 @app.route('/reset_cd', methods=['GET'])
 def reset_cd():
     user = get_user()
-    session[f'{user.username}_last_quiz_time'] = None
-    flash("Cooldown reset. You can now retake the quiz.", "success")
+
+    session[f"{user.username}_last_quiz_time"] = None
+    session[f"{user.username}_last_browse_time"] = None
+    session[f"{user.username}_last_review_time"] = None
+    session[f"{user.username}_last_streak_update"] = None  # Reset streak tracking too
+
+    flash("✅ All cooldowns have been reset. You can now complete the daily tasks again.", "success")
     return redirect('/rewards/earn')
+
 
 @app.route('/reset_streak', methods=['GET'])
 def reset_streak():
     user = get_user()
+
     user.total_points = 0
     user.daily_points = 0
     user.streak = 0
     user.save()
-    flash("Streak and points have been reset.", "success")
-    return redirect('/rewards/earn')
 
+    session[f"{user.username}_last_quiz_time"] = None
+    session[f"{user.username}_last_browse_time"] = None
+    session[f"{user.username}_last_review_time"] = None
+    session[f"{user.username}_last_streak_update"] = None  # Reset streak tracking
+
+    flash("✅ Your streak and points have been reset.", "success")
+    return redirect('/rewards/earn')
 
 
 @app.route('/rewards/redeem', methods=['GET', 'POST'])
 def redeem():
     user = get_user()
+
+    print(f"DEBUG: Total Points = {user.total_points}, Streak = {user.streak}")  # Debugging statement
+
     if request.method == 'POST':
         reward_name = request.form['reward_name']
         reward_points = int(request.form['reward_points'])
@@ -862,10 +900,108 @@ def redeem():
         {'name': 'Voucher B', 'points': 100},
         {'name': 'Voucher C', 'points': 150}
     ]
+
     return render_template('redeem.html', rewards=rewards, user_data={
         'username': user.username,
         'total_points': user.total_points,
+        'streak': user.streak  # Check if this is actually passing
     })
+
+
+from datetime import datetime, timedelta
+from flask import session, redirect, url_for, flash
+
+from flask import session, redirect, url_for, flash
+from datetime import datetime, timedelta
+
+
+@app.route('/track_browse_tour', methods=['POST'])
+@login_required
+def track_browse_tour():
+    user = get_user()
+    last_browse_time = session.get(f"{user.username}_last_browse_time")
+
+    if last_browse_time:
+        last_browse_time = datetime.fromisoformat(last_browse_time)
+        if datetime.now() - last_browse_time < timedelta(hours=24):
+            flash("⏳ You have already earned points for browsing today. Try again in 24 hours!", "warning")
+            return redirect(url_for('user_viewtours'))
+
+    # Award points
+    user.total_points += 10
+
+    # Only update streak if it's the first task of the day
+    today = datetime.today().date()
+    if user.last_streak_update != str(today):
+        user.streak += 1
+        user.last_streak_update = str(today)
+
+    user.save()
+    session[f"{user.username}_last_browse_time"] = datetime.now().isoformat()
+
+    flash("✅ You earned +10 points for browsing a tour!", "success")
+    return redirect(url_for('user_viewtours'))
+
+
+@app.route('/track_leave_review', methods=['POST'])
+@login_required
+def leave_review():
+    user = get_user()
+
+    # Retrieve last review timestamp from session
+    last_review_time = session.get(f"{user.username}_last_review_time")
+
+    if last_review_time:
+        last_review_time = datetime.fromisoformat(last_review_time)
+
+        # Check if 24 hours have passed
+        if datetime.now() - last_review_time < timedelta(hours=24):
+            flash("⏳ You have already earned points for leaving a review today. Try again in 24 hours!", "warning")
+            return redirect(url_for('some_review_page'))  # Change this to your actual review page
+
+    # Reward user with 20 points
+    user.total_points += 20
+    session[f"{user.username}_last_review_time"] = datetime.now().isoformat()
+    flash("✅ You earned +20 points for leaving a review!", "success")
+
+    return redirect(url_for('some_review_page'))  # Redirects to the review submission page
+
+
+@app.route('/submit_review', methods=['GET', 'POST'])
+@login_required
+def submit_review():
+    user = get_user()
+    last_review_time = session.get(f"{user.username}_last_review_time")
+
+    if last_review_time:
+        last_review_time = datetime.fromisoformat(last_review_time)
+        if datetime.now() - last_review_time < timedelta(hours=24):
+            flash("⏳ You have already earned points for leaving a review today. Try again in 24 hours!", "warning")
+            return redirect(url_for('rewards'))
+
+    if request.method == 'POST':
+        review_text = request.form.get('review')
+
+        if review_text.strip():
+            user.total_points += 20  # Always award points
+
+            # Only update streak if it's the first task of the day
+            today = datetime.today().date()
+            if user.last_streak_update != str(today):
+                user.streak += 1
+                user.last_streak_update = str(today)
+
+            user.save()
+            session[f"{user.username}_last_review_time"] = datetime.now().isoformat()
+            flash("✅ Thank you for your review! +20 points awarded.", "success")
+            return redirect(url_for('rewards'))
+        else:
+            flash("❌ Review cannot be empty!", "danger")
+
+    return render_template('leave_review.html')
+
+
+
 if __name__ == '__main__':
     generateSampleTours()
     app.run(debug=True)
