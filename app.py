@@ -36,7 +36,7 @@ def chat():
     
     # Prepare the request for Ollama
     data = {
-        "model": "ecoventure1",  # Replace with your preferred model
+        "model": "ecoventure2",  
         "prompt": user_message,
         "stream": False
     }
