@@ -4,7 +4,7 @@ class User(UserMixin):
     count_id = 0
 
     # initializer method
-    def __init__(self, first_name, last_name, gender, membership, remarks , phone_number , email, password = None, is_admin=True    ):
+    def __init__(self, first_name, last_name, gender, membership, remarks , phone_number , email, password = None, is_admin=True):
         User.count_id += 1
         self.__user_id = User.count_id
         self.__first_name = first_name
@@ -16,6 +16,11 @@ class User(UserMixin):
         self.__email = email
         self.__password = password
         self.__is_admin = is_admin
+
+    def get_name(self):
+        """Returns full name (first and last name)"""
+        return f"{self.__first_name} {self.__last_name}"
+
 
     # accessor methods
     def get_id(self):
@@ -49,7 +54,7 @@ class User(UserMixin):
         return self.__phone_number
 
     def get_email(self):
-        return self.__email
+        return self.__email.lower()
 
     # mutator methods
     def set_user_id(self, user_id):
@@ -88,4 +93,3 @@ class User(UserMixin):
 
     def set_admin(self, is_admin):
         self.__is_admin = is_admin
-

@@ -1,40 +1,76 @@
 {% extends "base.html" %}
 {% block title %}View Tours{% endblock %}
 
-
-{% block head %}
-
-{% endblock %}
-
 {% block content %}
-
-<div class="container mt-3">
+<div class="container mt-5">
     <h3>View Tours</h3>
-    <table class="table table-striped">
-        <thead>
-            <tr>
+    
+    <div class="row">
+        <!-- Sidebar Filter Section -->
+        <div class="col-md-3">
+            <h5>Filter by Country:</h5>
+            <form method="GET" action="{{ url_for('user_viewtours') }}">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="all_countries" name="country" value="all"
+                        {% if not selected_countries or 'all' in selected_countries %}checked{% endif %}>
+                    <label class="form-check-label" for="all_countries">All Countries</label>
+                </div>
+                {% for country in countries %}
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input country-filter" id="country_{{ country }}" 
+                        name="country" value="{{ country }}"
+                        {% if country in selected_countries %}checked{% endif %}>
+                    <label class="form-check-label" for="country_{{ country }}">{{ country }}</label>
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary mt-3">Apply Filters</button>
+            </form>
+        </div>
 
-                <th>Name</th>
-                <th>Description</th>
-                <th>Departures</th>
-                <th>Action</th>
-                
-            </tr>
-        </thead>
-        <tbody>
-            {% for tour in tours %}
-            <tr>
-
-                <td>{{ tour.name }}</td>
-                <td>{{ tour.description }}</td>
-                <td>{{ tour.departures|length }}</td>
-                <td><a href="{{ url_for('purchase_tour', tour_id=tour.tour_id) }}">Purchase</a></td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <!-- Main Tour List Section -->
+        <div class="col-md-9">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Country</th>
+                        <th>Departures</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tour in tours %}
+                    <tr>
+                        <td>{{ tour.get_name() }}</td>
+                        <td>{{ tour.get_description() }}</td>
+                        <td>{{ tour.get_country() }}</td>
+                        <td>{{ tour.get_departures()|length }}</td>
+                        <td><a class="btn btn-outline-primary" href="{{ url_for('prepurchase_tour', tour_id=tour.get_tourID()) }}">Reserve</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
+<!-- JavaScript to handle checkbox filtering -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('all_countries').addEventListener('change', function () {
+        const checkboxes = document.querySelectorAll('.country-filter');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = !this.checked;
+        });
+    });
+
+    document.querySelectorAll('.country-filter').forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+            document.getElementById('all_countries').checked = false;
+        });
+    });
+});
+</script>
 
 {% endblock %}
-

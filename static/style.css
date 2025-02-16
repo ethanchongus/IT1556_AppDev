@@ -1,5 +1,8 @@
-#mainheader{
-    background-image: linear-gradient(rgba(0, 0, 0, 0.527), rgba(0, 0, 0, 0.5)), url({{ url_for('static', filename='media/index/jumbotron.jpg') }});
+#mainheader {
+    height: 500px;
+    background: url("../media/index/jumbotron.jpg") no-repeat center center;
     background-size: cover;
-    background-color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

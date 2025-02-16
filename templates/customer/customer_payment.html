@@ -1,88 +1,100 @@
-{% extends "base_admin.html" if editing else "base.html" %}
-{% block title %}{{ "Update Details" if editing else "Register New Card Information" }}{% endblock %}
+{% extends "base.html" %}
+{% block title %}Transaction Page{% endblock %}
 
 {% block content %}
-<div class="container mx-auto py-8 max-w-lg">
-    <h1 class="text-xl font-bold mb-8">{{ "Update Details" if editing else "Register New Card Information" }}</h1>
-    <form method="POST" action="{{ url_for('admin.edit_payment', payment_id=form_data.id) if editing else '/payment/' }}" class="space-y-6">
-        {% if errors %}
-        <div class="text-red-500 mb-4">
-            {% for error in errors.values() %}
-            <p>{{ error }}</p>
-            {% endfor %}
-        </div>
-        {% endif %}
+<div class="container my-5">
+    <h2 class="text-center">{% if editing %}Edit{% else %}Transaction{% endif %} Page</h2>
 
-        <!-- Card Number -->
-        <div class="flex items-center mb-4">
-            <label for="card_number" class="w-48 text-right text-sm font-medium pr-4">Card Number*</label>
-            <input type="text" id="card_number" name="card_number" placeholder="XXXX XXXX XXXX XXXX"
-                   value="{{ form_data.card_number if form_data else '' }}"
-                   class="flex-1 border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-green-500 focus:outline-none {% if errors.card_number %}border-red-500{% endif %}" required>
+    <div class="row">
+        <div class="col-md-8">
+            {% if editing %}
+                <form method="POST" action="{{ url_for('admin.edit_payment', payment_id=payment_id) }}">
+            {% else %}
+                <form method="POST" action="{{ url_for('payment.customer_payment') }}">
+            {% endif %}
+                <div class="mb-3">
+                    <label for="name" class="form-label">Cardholder Name</label>
+                    <input type="text" id="name" name="name" class="form-control" 
+                           value="{{ form_data.name if form_data else '' }}" required pattern="[A-Za-z\s]+" 
+                           title="Only letters and spaces allowed.">
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" name="email" class="form-control" 
+                           value="{{ form_data.email if form_data else '' }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="card_number" class="form-label">Card Number</label>
+                    <input type="text" id="card_number" name="card_number" class="form-control" 
+                           value="{{ form_data.card_number if form_data else '' }}"
+                           placeholder="XXXX XXXX XXXX XXXX" required
+                           {% if editing %}disabled{% else %}required{% endif %}>
+                </div>
+
+                <div class="mb-3">
+                    <label for="expiry_date" class="form-label">Expiration Date</label>
+                    <input type="text" id="expiry_date" name="expiry_date" class="form-control" 
+                           value="{{ form_data.expiry_date if form_data else '' }}"
+                           placeholder="MM/YY" required
+                           {% if editing %}disabled{% else %}required{% endif %}>
+                </div>
+
+                <div class="mb-3">
+                    <label for="cvv" class="form-label">CVV</label>
+                    <input type="text" id="cvv" name="cvv" class="form-control" 
+                           value="{{ form_data.cvv if form_data else '' }}"
+                           placeholder="3 digits" required
+                           {% if editing %}disabled{% else %}required{% endif %}>
+                </div>
+
+                {% if errors %}
+                    {% for field, message in errors.items() %}
+                        <div class="alert alert-danger mt-2">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <button type="submit" class="btn btn-warning w-100">
+                    {% if editing %}Save Changes{% else %}Place Order{% endif %}
+                </button>
+            </form>
         </div>
 
-        <!-- Expiration Date -->
-        <div class="flex items-center mb-4">
-            <label for="expiry_date" class="w-48 text-right text-sm font-medium pr-4">Expiration Date*</label>
-            <input type="text" id="expiry_date" name="expiry_date" placeholder="MM/YY"
-                   value="{{ form_data.expiry_date if form_data else '' }}"
-                   class="flex-1 border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-green-500 focus:outline-none {% if errors.expiry_date %}border-red-500{% endif %}" required>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <h4>Order Summary</h4>
+                <p><strong>Subtotal:</strong> SGD {{ total_price if total_price else form_data.total }}</p>
+                <p><strong>Order Total:</strong> SGD {{ total_price if total_price else form_data.total }}</p>
+            </div>
         </div>
-
-        <!-- CVV -->
-        <div class="flex items-center mb-4">
-            <label for="cvv" class="w-48 text-right text-sm font-medium pr-4">CVV*</label>
-            <input type="text" id="cvv" name="cvv" placeholder="3 digits"
-                   value="{{ form_data.cvv if form_data else '' }}"
-                   class="flex-1 border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-green-500 focus:outline-none {% if errors.cvv %}border-red-500{% endif %}" required>
-        </div>
-
-        <!-- Full Name -->
-        <div class="flex items-center mb-4">
-            <label for="name" class="w-48 text-right text-sm font-medium pr-4">Full Name*</label>
-            <input type="text" id="name" name="name"
-                   value="{{ form_data.name if form_data else '' }}"
-                   class="flex-1 border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-green-500 focus:outline-none {% if errors.name %}border-red-500{% endif %}" required>
-        </div>
-
-        <!-- Email -->
-        <div class="flex items-center mb-4">
-            <label for="email" class="w-48 text-right text-sm font-medium pr-4">Email*</label>
-            <input type="email" id="email" name="email" placeholder="example@email.com"
-                   value="{{ form_data.email if form_data else '' }}"
-                   class="flex-1 border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-green-500 focus:outline-none {% if errors.email %}border-red-500{% endif %}" required>
-        </div>
-
-        <!-- Buttons -->
-        <div class="flex justify-end space-x-4 pt-4">
-            <button type="submit" class="bg-black text-white px-6 py-2 rounded hover:bg-gray-800">{{ "Update" if editing else "Continue" }}</button>
-            <a href="#" class="bg-white border border-black text-black px-6 py-2 rounded hover:bg-gray-100">Cancel</a>
-        </div>
-    </form>
+    </div>
 </div>
 
 <script>
-    // Auto-spacing for card number (every 4 digits) and limit to 16 digits
+    // Auto-spacing for card number
     document.getElementById('card_number').addEventListener('input', function (e) {
-        let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-        value = value.slice(0, 16); // Limit to 16 digits
-        value = value.match(/.{1,4}/g)?.join(' ') || ''; // Group digits in fours
+        let value = e.target.value.replace(/\D/g, ''); 
+        value = value.slice(0, 16);
+        value = value.match(/.{1,4}/g)?.join(' ') || '';
         e.target.value = value;
     });
 
     // Limit CVV to 3 digits
     document.getElementById('cvv').addEventListener('input', function (e) {
-        let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-        e.target.value = value.slice(0, 3); // Limit to 3 digits
+        let value = e.target.value.replace(/\D/g, '');
+        e.target.value = value.slice(0, 3);
     });
 
-    // Auto-formatting for expiration date (MM/YY)
+    // Auto-format expiration date
     document.getElementById('expiry_date').addEventListener('input', function (e) {
-        let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+        let value = e.target.value.replace(/\D/g, '');
         if (value.length >= 2) {
-            value = value.slice(0, 2) + '/' + value.slice(2); // Add slash after MM
+            value = value.slice(0, 2) + '/' + value.slice(2);
         }
-        e.target.value = value.slice(0, 5); // Limit to 5 characters (MM/YY)
+        e.target.value = value.slice(0, 5);
     });
 </script>
 {% endblock %}

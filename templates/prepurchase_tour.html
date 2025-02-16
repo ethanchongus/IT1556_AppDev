@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Add Tour to Cart{% endblock %}
+{% block content %}
+    <div class="container my-5">
+        <h1 class="text-center">{{ tour.get_name() }}</h1>
+        <p class="text-center">{{ tour.get_description() }}</p>
+        
+        <form method="POST" class="card p-4 shadow-sm">
+            {{ form.csrf_token }}
+            
+            <div class="mb-3">
+                {{ form.departure_date.label(class="form-label") }}
+                {{ form.departure_date(class="form-select") }}
+                {% if form.departure_date.errors %}
+                    {% for error in form.departure_date.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <!-- <div class="row">
+                <div class="mb-3 col">
+                    {{ form.user_name.label(class="form-label") }}
+                    {{ form.user_name(class="form-control", readonly=true) }}
+                </div>
+                
+                <div class="mb-3 col">
+                    {{ form.user_email.label(class="form-label") }}
+                    {{ form.user_email(class="form-control", readonly=true) }}
+                </div>
+
+            </div> -->
+            
+            
+            
+            <div class="mb-3">
+                {{ form.seats.label(class="form-label") }}
+                {{ form.seats(class="form-control") }}
+                {% if form.seats.errors %}
+                    {% for error in form.seats.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            {{ form.submit(class="btn btn-primary w-100") }}
+        </form>
+    </div>
+{% endblock %}

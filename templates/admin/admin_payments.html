@@ -14,6 +14,8 @@
                 <th class="border px-4 py-2">CVV</th>
                 <th class="border px-4 py-2">Email</th>
                 <th class="border px-4 py-2">Actions</th>
+                <th class="border px-4 py-2">Activities Purchased</th>
+                <th class="border px-4 py-2">Total Amount</th>
             </tr>
         </thead>
         <tbody>
@@ -29,6 +31,14 @@
                     <a href="{{ url_for('admin.edit_payment', payment_id=payment.id) }}" class="text-blue-500 hover:underline">Edit</a> |
                     <a href="{{ url_for('admin.delete_payment', payment_id=payment.id) }}" class="text-red-500 hover:underline">Delete</a>
                 </td>
+                <td class="border px-4 py-2">
+                    <ul>
+                        {% for activity in payment.activities %}
+                            <li>{{ activity.name }} - {{ activity.departure_date }} - SGD {{ activity.price }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+                <td class="border px-4 py-2">SGD {{ payment.total }}</td>
             </tr>
             {% endfor %}
         </tbody>

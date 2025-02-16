@@ -1,35 +1,27 @@
 {% extends "base.html" %}
-
 {% block title %}Invoice{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2 class="mb-4">Invoice</h2>
-    <hr>
-    <div>
-        <p><strong>Customer Name:</strong> {{ payment.name }}</p>
-        <p><strong>Email:</strong> {{ payment.email }}</p>
-    </div>
-    <hr>
-    <h4>Activity Details</h4>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Activity Name</th>
-                <th>Description</th>
-                <th>Price</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>{{ payment.activity.name }}</td>
-                <td>{{ payment.activity.description }}</td>
-                <td>${{ payment.activity.price }}</td>
-            </tr>
-        </tbody>
-    </table>
-    <hr>
-    <h4>Total Amount Paid: ${{ payment.total }}</h4>
-    <a href="{{ url_for('payment.customer_payment') }}" class="btn btn-primary mt-3">Back to Payment</a>
+<div class="container mx-auto py-8 max-w-lg">
+    <h1 class="text-xl font-bold mb-8">Invoice</h1>
+
+    <p><strong>Invoice ID:</strong> {{ payment.id }}</p>
+    <p><strong>Name:</strong> {{ payment.name }}</p>
+    <p><strong>Email:</strong> {{ payment.email }}</p>
+    <p><strong>Card (Last 4 Digits):</strong> **** **** **** {{ payment.card_number }}</p>
+    <p><strong>Expiration Date:</strong> {{ payment.expiry_date }}</p>
+
+    <h2 class="text-lg font-semibold mt-6">Purchased Activities</h2>
+    <ul class="list-disc pl-5">
+        {% for item in payment.activities %}
+        <li>{{ item.name }} - SGD {{ item.price }} (x{{ item.quantity }})</li>
+        {% endfor %}
+    </ul>
+
+    <p class="font-bold mt-4">Total: SGD {{ payment.total }}</p>
+
+    <a href="{{ url_for('user_bookings') }}" class="mt-6 inline-block bg-black text-white px-6 py-2 rounded hover:bg-gray-800">
+        Back to My Bookings
+    </a>    
 </div>
 {% endblock %}

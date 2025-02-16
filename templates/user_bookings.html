@@ -1,21 +1,33 @@
 {% extends "base.html" %}
-{% block title %}Your Bookings{% endblock %}
+
+{% block title %}My Bookings{% endblock %}
+
 {% block content %}
 <div class="container my-5">
-    <h1 class="text-center">Your Bookings</h1>
+    <h2 class="text-center">My Bookings</h2>
+
     {% if purchases %}
-        <div class="list-group">
+        <div class="row">
             {% for purchase in purchases %}
-            <div class="list-group-item">
-                <h5>Tour Name: {{ purchase.name }}</h5>
-                <p>Departure Date: {{ purchase.departure_date }}</p>
-                <p>Seats Booked: {{ purchase.seats }}</p>
-                <p>Purchase ID: {{ purchase.purchase_id }}</p>
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ purchase.tour_name }}</h5>
+                        <p class="card-text"><strong>Location:</strong> {{ purchase.location }}</p>
+                        <p class="card-text"><strong>Departure Date:</strong> {{ purchase.departure_date }}</p>
+                        <p class="card-text"><strong>Seats:</strong> {{ purchase.seats }}</p>
+                        <p class="card-text"><strong>Total Price:</strong> SGD {{ purchase.total_price }}</p>
+
+                        <form method="POST" action="{{ url_for('cancel_booking', booking_id=purchase.id) }}">
+                            <button type="submit" class="btn btn-danger">Cancel Booking</button>
+                        </form>
+                    </div>
+                </div>
             </div>
             {% endfor %}
         </div>
     {% else %}
-        <p class="text-center text-muted">You have no bookings yet. Start exploring and booking tours!</p>
+        <p class="text-center">You have no bookings.</p>
     {% endif %}
 </div>
 {% endblock %}

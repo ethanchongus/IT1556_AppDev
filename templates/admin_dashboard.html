@@ -1,0 +1,108 @@
+{% extends "base_admin.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mt-5 mb-5">Admin Dashboard</h1>
+    <div class="row">
+        <!-- Total Tours -->
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Total Tours</div>
+                <div class="card-body">
+                    <h2 class="card-title">{{ total_tours }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Departures -->
+        <div class="col-md-3">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Total Departures</div>
+                <div class="card-body">
+                    <h2 class="card-title">{{ total_departures }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Customers -->
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-header">Total Customers</div>
+                <div class="card-body">
+                    <h2 class="card-title">{{ total_customers }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Bookings -->
+        <div class="col-md-3">
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-header">Total Bookings</div>
+                <div class="card-body">
+                    <h2 class="card-title">{{ total_bookings }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tours by Country Chart -->
+        <div class="col-md-6">
+            <h3>Tours per Country</h3>
+            <canvas id="countryChart"></canvas>
+        </div>
+
+        <!-- Bookings per Tour Chart -->
+        <div class="col-md-6">
+            <h3>Bookings per Tour</h3>
+            <canvas id="bookingsChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js for Data Visualization -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Tours by Country Chart
+    var countryCtx = document.getElementById('countryChart').getContext('2d');
+    var countryChart = new Chart(countryCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ country_distribution.keys()|list|tojson }},
+            datasets: [{
+                label: 'Number of Tours',
+                data: {{ country_distribution.values()|list|tojson }},
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: { responsive: true, scales: { y: { beginAtZero: true } } }
+    });
+
+    // Bookings per Tour Chart
+    var bookingsCtx = document.getElementById('bookingsChart').getContext('2d');
+    var bookingsChart = new Chart(bookingsCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ bookings_per_tour.keys()|list|tojson }},
+            datasets: [{
+                label: 'Number of Bookings',
+                data: {{ bookings_per_tour.values()|list|tojson }},
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(255, 206, 86, 0.6)',
+                    'rgba(75, 192, 192, 0.6)',
+                    'rgba(153, 102, 255, 0.6)',
+                    'rgba(255, 159, 64, 0.6)'
+                ],
+                borderColor: 'rgba(0, 0, 0, 0.1)',
+                borderWidth: 1
+            }]
+        },
+        options: { responsive: true }
+    });
+});
+</script>
+{% endblock %}

@@ -13,11 +13,21 @@
     {% block head %}
     <!-- title -->
     <title>{% block title %}{% endblock %}</title>
-
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename = 'media/logo_var3.png') }}">
     {% endblock %}
 </head>
 <body>
     <header>
+<<<<<<< HEAD
+      <nav class="navbar flex-column navbar-expand-sm navbar-dark bg-dark ">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{url_for('admin_panel')}}">
+                <img width="180px" src="{{ url_for('static', filename = 'media/logo_banner.png') }}">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+=======
         <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
             <div class="container-fluid">
               <a class="navbar-brand" href="/admin"><img width="180px" src="{{ url_for('static', filename = 'media/logo_banner.png') }}"></a>
@@ -32,7 +42,44 @@
             
           </nav>
     </header>
+>>>>>>> rewards
 
+            <div class="collapse navbar-collapse" id="mynavbar">
+                <ul class="navbar-nav me-auto">
+                  <li class="nav-item"><a class="nav-link" href="/admin">Dashboard</a></li>
+                  <li class="nav-item"><a class="nav-link" href="/admin/activities">Tours</a></li>
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Manage Users</a>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="/createUser">Create User</a></li>
+                      <li><a class="dropdown-item" href="/retrieveUsers">Retrieve Users</a></li>
+                    </ul>
+                  </li>
+                  <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.admin_payments') }}">Payments</a></li>
+                </ul>
+                <div class="d-flex text-white">
+                    <ul class="navbar-nav me-auto">
+                      <a class="btn btn-outline-light" href="{{ url_for('logout') }}"> Log Out </a>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="w-100">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+              {% for category, message in messages %}
+                  <div class="m-3 alert alert-{{ category }} alert-dismissible fade show">
+                      {{ message }}
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+              {% endfor %}
+          {% endif %}
+          {% endwith %}
+      </div>
+    </nav>
+
+    </header>
+    
     {% block content %}
     
     

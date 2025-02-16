@@ -1,51 +1,86 @@
 import uuid
 import shelve
 
-
 shelve_db = 'database/tour_data'
 
 # Tour Class
 class tour:
-    def __init__(self, name, description):
-        self.tour_id = None
-        self.name = name
-        self.description = description
-        self.departures = []
-
-    # def set_tourID(self, id):
-    #     self.tour_id = id
+    def __init__(self, name, description,country):
+        self.__tour_id = None
+        self.__name = name
+        self.__description = description
+        self.__country = country
+        self.__departures = []
 
     def generate_tourID(self):
-        self.tour_id = uuid.uuid4()
-        # print(f"Tour ID for {self.name} is generated. - {self.tour_id}")
+        self.__tour_id = uuid.uuid4()
 
     def get_tourID(self):
-        return self.tour_id
+        return self.__tour_id
+
+    def get_name(self):
+        return self.__name
+
+    def set_name(self, name):
+        self.__name = name
+
+    def get_description(self):
+        return self.__description
+
+    def set_description(self, description):
+        self.__description = description
+
+    def get_departures(self):
+        return self.__departures
 
     def add_departure(self, departure):
-        self.departures.append(departure)
+        self.__departures.append(departure)
 
     def remove_departure(self, departure_id):
-        self.departures = [d for d in self.departures if str(d.date) != str(departure_id)]
+        self.__departures = [d for d in self.__departures if str(d.get_date()) != str(departure_id)]
+
+    def get_country(self):
+        return self.__country  
+
+    def set_country(self, country):
+        self.__country = country  
 
     def __str__(self):
-        return f"Tour: {self.name}\nDescription: {self.description}\nDepartures: {len(self.departures)} available\nID:{self.tour_id}"
+        return f"Tour: {self.__name}\nDescription: {self.__description}\nDepartures: {len(self.__departures)} available\nID:{self.__tour_id}"
 
 
 class departuredate:
     def __init__(self, date, price, availability):
-        self.date = date
-        self.price = price
-        self.availability = availability
+        self.__date = date
+        self.__price = price
+        self.__availability = availability
+
+    def get_date(self):
+        return self.__date
+
+    def set_date(self, date):
+        self.__date = date
+
+    def get_price(self):
+        return self.__price
+
+    def set_price(self, price):
+        self.__price = price
+
+    def get_availability(self):
+        return self.__availability
+
+    def set_availability(self, availability):
+        self.__availability = availability
 
     def __str__(self):
-        return f"Departure Date: {self.date}, Price: ${self.price}, Availability: {self.availability} seats"
+        return f"Departure Date: {self.__date}, Price: ${self.__price}, Availability: {self.__availability} seats"
 
 
 # Save a single tour to shelve
 def save_tour(tour_obj):
     with shelve.open(shelve_db) as db:
-        db[str(tour_obj.tour_id)] = tour_obj
+        db[str(tour_obj.get_tourID())] = tour_obj
 
 
 # Delete a single tour from shelve
@@ -67,56 +102,17 @@ def get_tour(tour_id):
         return db.get(str(tour_id), None)
 
 
-def create_event(name, desc):
-    t = tour(name, desc)
+def create_event(name, desc, country):
+    t = tour(name, desc, country)  # Include country
     t.generate_tourID()
     save_tour(t)
 
 
 def generateSampleTours():
     if not load_tours():  # Only generate samples if no tours exist
-        create_event("Safari Adventure", "A thrilling safari experience.")
-        create_event("Mountain Hike", "A challenging but rewarding hike in the mountains.")
-        create_event("EcoVenture Tour", "Explore the best of Yishun.")
-        create_event("Tokyo Highlights", "Explore the best of Tokyo in 7 days.")
-        create_event("Kyoto Serenity", "Discover the tranquil temples of Kyoto.")
-        create_event("Osaka Nightlife", "Experience the vibrant nightlife of Osaka.")
-
-# def create_event(name,desc):
-#     t = tour(name,desc)
-#     t.generate_tourID()
-#     tourlist.append(t)
-#     save_tours()
-
-# def delete_event(tour_id):
-#   for i, tour in enumerate(tourlist):
-#     if tour.tour_id == tour_id:
-#       print(f"Tour with ID {tour_id} deleted.")
-#       tourlist.pop(i)
-#       save_tours()
-
-
-# def generateSampleTours():
-#     if not load_tours():
-#         # create_event("EcoVenture Tour", "Explore the best of Yishun.")
-#         create_event("Tokyo Highlights", "Explore the best of Tokyo in 7 days.")
-#         create_event("Kyoto Serenity", "Discover the tranquil temples of Kyoto.")
-#         create_event("Osaka Nightlife", "Experience the vibrant nightlife of Osaka.")
-
-#         # Create a tour manually
-#         test_tour = tour("EcoVenture Tour", "Explore the best of Yishun.")
-#         test_tour.generate_tourID()
-#         tourlist.append(test_tour)
-
-#         # Create departures
-#         departure1 = departuredate("2024-09-01", 1500, 10)
-#         departure2 = departuredate("2024-09-15", 1600, 5)
-
-#         # Add departures to the tour
-#         test_tour.add_departure(departure1)
-#         test_tour.add_departure(departure2)
-#         save_tours()
-
-        
-
-
+        create_event("Safari Adventure", "A thrilling safari experience.", "Indog")
+        create_event("Mountain Hike", "A challenging but rewarding hike in the mountains.", "Indog")
+        create_event("EcoVenture Tour", "Explore the best of Yishun.", "Singapore")
+        create_event("Tokyo Highlights", "Explore the best of Tokyo in 7 days.", "Japan")
+        create_event("Kyoto Serenity", "Discover the tranquil temples of Kyoto.", "Japan")
+        create_event("Osaka Nightlife", "Experience the vibrant nightlife of Osaka.", "Japan")

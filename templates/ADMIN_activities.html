@@ -1,28 +1,48 @@
 {% extends "base_admin.html" %}
 {% block title %}Activities{% endblock %}
 
-
 {% block head %}
-
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-5">
     <h1 class="mb-4">Available Tours</h1>
     <div>
+        <!-- Add Tour Form -->
         <form method="POST">
-            <h4>Add Tours</h4>
-            <input type="hidden" name="add_event" value="1">
+            {{ add_form.hidden_tag() }}
             <div class="mb-3">
-                <label for="event_name" class="form-label" >Tour Name</label>
-                <input type="text" class="form-control" id="event_name" name="event_name" required>
+                {{ add_form.event_name.label(class="form-label") }}
+                {{ add_form.event_name(class="form-control") }}
+                {% if add_form.event_name.errors %}
+                    {% for error in add_form.event_name.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                {% endif %}
             </div>
             <div class="mb-3">
-                <label for="event_desc" class="form-label" >Tour Description</label>
-                <input type="text" class="form-control" id="event_desc" name="event_desc" required>
+                {{ add_form.event_desc.label(class="form-label") }}
+                {{ add_form.event_desc(class="form-control") }}
+                {% if add_form.event_desc.errors %}
+                    <div class="text-danger">{{ add_form.event_desc.errors[0] }}</div>
+                {% endif %}
             </div>
+<<<<<<< HEAD
+<<<<<<< HEAD
+            <div class="mb-3">
+                {{ add_form.country.label(class="form-label") }}
+                {{ add_form.country(class="form-control") }}
+                {% if add_form.country.errors %}
+                    <div class="text-danger">{{ add_form.country.errors[0] }}</div>
+                {% endif %}
+            </div>
+            {{ add_form.submit(class="btn btn-success") }}
+=======
+=======
+>>>>>>> 2686c229902aebf37f5ff723aeb916735efbb276
 
             <button type="submit" class="btn btn-success">Add Tour</button>
+>>>>>>> rewards
         </form>
     </div>
     <hr>
@@ -33,6 +53,7 @@
                 <tr>
                     <th>Tour ID</th>
                     <th>Name</th>
+                    <th>Country</th>
                     <th>Description</th>
                     <th>Departures</th>
                     <th>Actions</th>
@@ -41,27 +62,39 @@
             <tbody>
                 {% for tour in tours %}
                 <tr>
-                    <td>{{ tour.tour_id }}</td>
-                    <td>{{ tour.name }}</td>
-                    <td>{{ tour.description }}</td>
-                    <td>{{ tour.departures|length }}</td>
+                    <td>{{ tour.get_tourID() }}</td>
+                    <td>{{ tour.get_name() }}</td>
+                    <td>{{ tour.get_country()}}</td>
+                    <td>{{ tour.get_description() }}</td>
+                    <td>{{ tour.get_departures()|length }}</td>
                     <td>
-                        <form method="POST" >
-                            <a href="{{ url_for('edit_tour', tour_id=tour.tour_id) }}" class="btn btn-primary btn-sm">View More</a>
-                            <input type="hidden" name="delete_tourid" value="{{ tour.tour_id }}">
+                        <form method="POST">
+                            <a href="{{ url_for('edit_tour', tour_id=tour.get_tourID()) }}" class="btn btn-primary btn-sm">View More</a>
+                            <input type="hidden" name="delete_tourid" value="{{ tour.get_tourID() }}">
                             <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                         </form>
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
 
+>>>>>>> rewards
+=======
+
+>>>>>>> 2686c229902aebf37f5ff723aeb916735efbb276
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+
+>>>>>>> 2686c229902aebf37f5ff723aeb916735efbb276
 
 
+>>>>>>> rewards
 </div>
-
-
 {% endblock %}
-
