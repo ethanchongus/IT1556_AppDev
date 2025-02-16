@@ -1,8 +1,8 @@
-FROM python:3-alpine3.15
-COPY . /app
+FROM python:3-alpine3.20
+
 WORKDIR /app
 
-RUN pip install -r requirements.txt 
-EXPOSE 6980 
+COPY . .
+RUN pip3 install -r requirements.txt
 
-CMD python ./app.py
+CMD ["python3", "-m", "flask", "run", "--host=0.0.0.0"]
