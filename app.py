@@ -2,6 +2,7 @@ from activities import *
 from purchase import *
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from payment_routes import *
+
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from payment_routes import payment_bp
 
@@ -16,6 +17,7 @@ from api_routes import api_bp
 import requests
 
 
+
 from earn import User, get_tasks, complete_task
 from feedback import FeedbackManager
 from datetime import datetime, timedelta
@@ -26,6 +28,8 @@ app.secret_key = 'ecoventures'
 app.register_blueprint(payment_bp, url_prefix='/payment')
 app.register_blueprint(admin_bp, url_prefix='/admin/payments')
 app.register_blueprint(api_bp)
+
+
 
 
 
@@ -681,6 +685,7 @@ def create_defaultadmin():
     db['Users'] = users_dict
 
     db.close()
+
 
 
 feedback_manager = FeedbackManager()
