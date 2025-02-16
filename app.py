@@ -377,7 +377,6 @@ def admin_login():
             flash('Error accessing user database', 'danger')
             return redirect(url_for('admin_login'))
 
-        # Find admin user by email
         admin_user = None
         for u in users_dict.values():
             if u.get_email() == form.email.data and u.is_admin():  # Check email and admin status
