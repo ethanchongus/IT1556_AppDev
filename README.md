@@ -1,12 +1,30 @@
 # IT1556_AppDev
+
+## Module Requirements
+Please use the requirement.txt file to see what modules are needed to run the program.
+pip install -r requirements.txt
+
 ### Sample Customer
 User: john@email.com , jane@email.com
 PW: password
 
-
 ### Sample Admin
 User: admin@admin.com  
 PW: password
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ### REST API
 This API provides the following endpoints:
