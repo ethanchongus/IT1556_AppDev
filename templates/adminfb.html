@@ -1,130 +1,37 @@
-from flask import Flask, render_template, request, redirect, flash, session
-from earn import User, get_tasks, complete_task
-from feedback import FeedbackManager
-from datetime import datetime, timedelta
+{% extends "base_admin.html" %}
 
-app = Flask(__name__)
-app.secret_key = "hi"
-feedback_manager = FeedbackManager()
+{% block title %}Admin Feedback{% endblock %}
 
-def get_user():
-    if 'username' not in session:
-        session['username'] = 'NewUser'
-    username = session['username']
-    return User(username)
+{% block content %}
+    <div class="container">
+        <h1 class="mt-4">Admin Feedback</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Service Rating</th>
+                    <th>Product Rating</th>
+                    <th>Feedback</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for feedback_id, feedback in feedback_list.items() %}
+<tr>
+    <td>{{ feedback_id }}</td>
+    <td>{{ feedback.rating1 }}</td>
+    <td>{{ feedback.rating2 }}</td>
+    <td>{{ feedback.feedback_text }}</td>
+    <td>
+        <form method="POST">
+            <input type="hidden" name="feedback_id" value="{{ feedback_id }}">
+            <button type="submit" name="delete" class="btn btn-danger">Delete</button>
+        </form>
+    </td>
+</tr>
+{% endfor %}
 
-@app.route('/')
-def home():
-    return redirect('/rewards/earn')
-
-@app.route('/feedback', methods=['GET', 'POST'])
-def feedback_page():
-    if request.method == 'POST':
-        rating1 = request.form.get('rating1')
-        rating2 = request.form.get('rating2')
-        feedback_text = request.form.get('feedback_text')
-
-        if feedback_manager.validate(rating1, rating2, feedback_text):
-            feedback_manager.save_feedback(rating1, rating2, feedback_text)
-            flash("Thank you for your feedback!", "success")
-            return redirect('/feedback')
-        else:
-            for error in feedback_manager.errors:
-                flash(error, "danger")
-
-    return render_template('cusfb.html')
-
-@app.route('/admin')
-def admin_page():
-    feedback_list = feedback_manager.get_all_feedback()
-    return render_template('adminfb.html', feedback=feedback_list)
-
-@app.route('/rewards/earn')
-def rewards():
-    user = get_user()
-    tasks = get_tasks()
-    return render_template('rewards.html', section='earn', data={'tasks': tasks}, user_data={
-        'username': user.username,
-        'total_points': user.total_points,
-        'daily_points': user.daily_points,
-        'streak': user.streak
-    })
-
-@app.route('/rewards/earn', methods=['GET', 'POST'])
-def earn():
-    user = get_user()
-    if request.method == 'POST':
-        task_name = request.form['task_name']
-        if complete_task(user, task_name):
-            flash(f"Task '{task_name}' completed! Points added.", "success")
-        else:
-            flash("Task completion failed. Try again.", "danger")
-
-    tasks = get_tasks()
-    return render_template('rewards.html', section='earn', data={'tasks': tasks}, user_data={
-        'username': user.username,
-        'total_points': user.total_points,
-        'daily_points': user.daily_points,
-        'streak': user.streak
-    })
-
-@app.route('/rewards/earn/quiz', methods=['GET', 'POST'])
-def quiz():
-    user = get_user()
-    total_points = 0
-
-    if request.method == 'POST':
-        score = 0
-        answer_1 = request.form.get('answer_1')
-        answer_2 = request.form.get('answer_2')
-
-        if answer_1 == 'train':
-            score += 1
-            total_points += 10
-        if answer_2 == 'sweden':
-            score += 1
-            total_points += 10
-
-        last_quiz_time = session.get(f'{user.username}_last_quiz_time', None)
-        if last_quiz_time is not None:
-            last_quiz_time = last_quiz_time.replace(tzinfo=None)
-
-        if last_quiz_time is None or datetime.now() - last_quiz_time >= timedelta(days=1):
-            if score == 2:
-                user.total_points += total_points
-                user.streak += 1
-                session['total_points'] = user.total_points
-                session['streak'] = user.streak
-                session['daily_points'] = user.daily_points
-                flash(f"You got {score} out of 2 questions right! {total_points} points added.", "success")
-                session[f'{user.username}_last_quiz_time'] = datetime.now()
-                return redirect('/rewards/earn')
-            else:
-                flash(f"You got {score} out of 2 questions right. Try again!", "danger")
-                return redirect('/rewards/earn')
-        else:
-            flash("You can only take the quiz once every 24 hours.", "danger")
-
-    return render_template('quiz.html')
-
-@app.route('/reset_cd', methods=['GET'])
-def reset_cd():
-    user = get_user()
-    session[f'{user.username}_last_quiz_time'] = None
-    flash("Cooldown reset. You can now retake the quiz.", "success")
-    return redirect('/rewards/earn')
-
-@app.route('/reset_streak', methods=['GET'])
-def reset_streak():
-    user = get_user()
-    user.total_points = 0
-    user.daily_points = 0
-    user.streak = 0
-    session['total_points'] = 0
-    session['daily_points'] = 0
-    session['streak'] = 0
-    flash("Streak and points have been reset.", "success")
-    return redirect('/rewards/earn')
-
-if __name__ == '__main__':
-    app.run(debug=True)
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

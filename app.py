@@ -26,6 +26,8 @@ app.register_blueprint(admin_bp, url_prefix='/admin/payments')
 app.register_blueprint(api_bp)
 
 
+
+
 @app.route('/')
 def index():
     form = SearchTourForm()
@@ -714,35 +716,32 @@ def feedback_page():
     # Render feedback form template
     return render_template('cusfb.html')
 
-
-
-@app.route('/admin/feedback', methods=['GET', 'POST'])
+@app.route('/admin/feedback/', methods=['GET', 'POST'])
 @login_required
 def admin_feedback():
+    if not current_user.is_authenticated or not hasattr(current_user, 'is_admin') or not current_user.is_admin():
+        flash("Access denied: Admins only.", "danger")
+        return redirect(url_for('index'))
+
+
     feedback_list = feedback_manager.get_all_feedback()
+
+    print("DEBUG - Feedback List:", feedback_list)  # ✅ Add this to check data
 
     if request.method == 'POST':
         feedback_id = request.form.get('feedback_id')
-        if 'reply' in request.form:
-            # Handle reply submission
-            reply = request.form.get('reply_text')
-            try:
-                feedback_manager.reply_to_feedback(feedback_id, reply)
-                flash(f"Reply added to feedback ID {feedback_id}.", "success")
-            except KeyError as e:
-                flash(str(e), "danger")
-        elif 'delete' in request.form:
-            # Handle feedback deletion
-            try:
-                feedback_manager.delete_feedback(feedback_id)
-                flash(f"Feedback ID {feedback_id} deleted successfully.", "success")
-            except KeyError as e:
-                flash(str(e), "danger")
 
-        # Reload the feedback list after modification
-        feedback_list = feedback_manager.get_all_feedback()
+        if 'delete' in request.form:
+            if feedback_manager.delete_feedback(feedback_id):
+                flash(f"Feedback ID {feedback_id} deleted successfully.", "success")
+            else:
+                flash("Feedback not found.", "danger")
+
+        # Reload feedback after deletion
+        return redirect(url_for('admin_feedback'))
 
     return render_template('adminfb.html', feedback_list=feedback_list)
+
 
 def get_tasks():
     return [

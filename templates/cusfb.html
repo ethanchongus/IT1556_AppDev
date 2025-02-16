@@ -2,43 +2,181 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Feedback</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+    <style>
+        body {
+            background-color: #f4f7f1;
+            font-family: Arial, sans-serif;
+        }
+
+        .feedback-container {
+            max-width: 500px;
+            background: #ffffff;
+            padding: 30px;
+            margin: 50px auto;
+            border-radius: 12px;
+            border: 2px solid #3a5a40;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #3a5a40;
+            font-weight: bold;
+            font-size: 32px;
+        }
+
+        .rating-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 15px 0;
+        }
+
+        .rating-group input {
+            display: none;
+        }
+
+        .rating-group label {
+            font-size: 50px;
+            cursor: pointer;
+            color: #d4d4c5;
+            transition: color 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .rating-group input:checked + label {
+            color: #3a5a40;
+        }
+
+        .feedback-label {
+            font-size: 16px;
+            font-weight: bold;
+            color: #3a5a40;
+            margin-top: 15px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #3a5a40;
+            border-radius: 8px;
+            background: #f0f4f0;
+            resize: none;
+            font-size: 16px;
+        }
+
+        .submit-btn {
+            background-color: #b17e66;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #8f6b58;
+        }
+    </style>
 </head>
 <body>
-    <h1>Feedback Form</h1>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul>
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+<div class="container">
+    <div class="feedback-container">
+        <h1>Feedback</h1>
 
-    <form method="POST" action="/feedback">
-        <label for="experience">Service Rating (1-5):</label>
-        <input type="radio" name="rating1" value="1"> 1
-        <input type="radio" name="rating1" value="2"> 2
-        <input type="radio" name="rating1" value="3"> 3
-        <input type="radio" name="rating1" value="4"> 4
-        <input type="radio" name="rating1" value="5"> 5
-        <br><br>
+        <form method="POST" action="/feedback">
 
-        <label for="recommendation">Product Rating (1-5):</label>
-        <input type="radio" name="rating2" value="1"> 1
-        <input type="radio" name="rating2" value="2"> 2
-        <input type="radio" name="rating2" value="3"> 3
-        <input type="radio" name="rating2" value="4"> 4
-        <input type="radio" name="rating2" value="5"> 5
-        <br><br>
+            <div class="feedback-label">How would you rate your website experience?</div>
+            <div class="rating-group">
+                <input type="radio" id="rating1" name="rating1" value="1">
+                <label for="rating1">
+                    <i class="fas fa-leaf"></i>
+                    <span>Very Poor</span>
+                </label>
 
-        <label for="suggestion">Feedback:</label>
-        <textarea name="feedback_text" id="feedback_text" rows="5" cols="40"></textarea>
-        <br><br>
+                <input type="radio" id="rating2" name="rating1" value="2">
+                <label for="rating2">
+                    <i class="fas fa-leaf"></i>
+                    <span>Poor</span>
+                </label>
 
-        <button type="submit">Submit</button>
-    </form>
+                <input type="radio" id="rating3" name="rating1" value="3">
+                <label for="rating3">
+                    <i class="fas fa-leaf"></i>
+                    <span>Medium</span>
+                </label>
+
+                <input type="radio" id="rating4" name="rating1" value="4">
+                <label for="rating4">
+                    <i class="fas fa-leaf"></i>
+                    <span>Good</span>
+                </label>
+
+                <input type="radio" id="rating5" name="rating1" value="5">
+                <label for="rating5">
+                    <i class="fas fa-leaf"></i>
+                    <span>Excellent</span>
+                </label>
+            </div>
+
+            <div class="feedback-label">Would you be likely to recommend us?</div>
+            <div class="rating-group">
+                <input type="radio" id="rec1" name="rating2" value="1">
+                <label for="rec1">
+                    <i class="fas fa-leaf"></i>
+                    <span>Very Unlikely</span>
+                </label>
+
+                <input type="radio" id="rec2" name="rating2" value="2">
+                <label for="rec2">
+                    <i class="fas fa-leaf"></i>
+                    <span>Unlikely</span>
+                </label>
+
+                <input type="radio" id="rec3" name="rating2" value="3">
+                <label for="rec3">
+                    <i class="fas fa-leaf"></i>
+                    <span>Maybe</span>
+                </label>
+
+                <input type="radio" id="rec4" name="rating2" value="4">
+                <label for="rec4">
+                    <i class="fas fa-leaf"></i>
+                    <span>Likely</span>
+                </label>
+
+                <input type="radio" id="rec5" name="rating2" value="5">
+                <label for="rec5">
+                    <i class="fas fa-leaf"></i>
+                    <span>Very Likely</span>
+                </label>
+            </div>
+
+            <div class="feedback-label">Any other feedback or suggestions?</div>
+            <textarea name="feedback_text" id="feedback_text" rows="3" placeholder="Write here..."></textarea>
+            <br><br>
+
+            <button type="submit" class="submit-btn">Submit</button>
+        </form>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
