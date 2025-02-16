@@ -31,7 +31,7 @@
                 <div class="collapse navbar-collapse" id="mynavbar">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('user_viewtours') }}">Experiences</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Rewards</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('rewards') }}">Rewards</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('aboutus') }}">About Us</a></li>
                     <!-- <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('payment.view_cart') }}">Cart</a>
@@ -44,9 +44,9 @@
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Welcome, {{ current_user.get_name() }}</a>  <!--change-->
                                 <ul class="dropdown-menu">
-                                  <li><a class="dropdown-item" href="profile">Profile</a></li>
-                                  <li><a class="dropdown-item" href="/user/bookings/">My Bookings</a></li>
-                                  <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('profile') }}">Profile</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('user_bookings') }}">My Bookings</a></li>
+                                    <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item">
