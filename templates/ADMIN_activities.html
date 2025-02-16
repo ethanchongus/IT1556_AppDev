@@ -27,6 +27,7 @@
                     <div class="text-danger">{{ add_form.event_desc.errors[0] }}</div>
                 {% endif %}
             </div>
+<<<<<<< HEAD
             <div class="mb-3">
                 {{ add_form.country.label(class="form-label") }}
                 {{ add_form.country(class="form-control") }}
@@ -35,6 +36,10 @@
                 {% endif %}
             </div>
             {{ add_form.submit(class="btn btn-success") }}
+=======
+
+            <button type="submit" class="btn btn-success">Add Tour</button>
+>>>>>>> rewards
         </form>
     </div>
     <hr>
@@ -65,11 +70,20 @@
                             <input type="hidden" name="delete_tourid" value="{{ tour.get_tourID() }}">
                             <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                         </form>
+<<<<<<< HEAD
+=======
+
+>>>>>>> rewards
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> rewards
 </div>
 {% endblock %}

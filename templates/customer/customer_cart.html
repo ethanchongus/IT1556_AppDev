@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+<<<<<<< HEAD
 {% block title %}Shopping Cart{% endblock %}
 
 {% block content %}
@@ -42,6 +43,39 @@
     </div>
     {% else %}
     <p class="text-center">Your cart is empty.</p>
+=======
+{% block title %}Cart{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Your Cart</h2>
+    {% if cart %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.location }}</td>
+                    <td>${{ item.price }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>${{ item.price * item.quantity }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{{ url_for('payment.customer_checkout') }}" class="btn btn-success">Proceed to Checkout</a>
+    {% else %}
+        <p>Your cart is empty.</p>
+>>>>>>> rewards
     {% endif %}
 </div>
 {% endblock %}

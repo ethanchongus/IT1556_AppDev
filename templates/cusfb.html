@@ -2,43 +2,172 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feedback</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border: 2px solid #d4d4d4;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .rating-group {
+            margin-bottom: 20px;
+        }
+
+        .rating-group label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .rating-group input {
+            margin-right: 10px;
+            accent-color: #6bbf59; /* Styles the radio buttons */
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d4d4d4;
+            border-radius: 5px;
+            font-size: 14px;
+            resize: none;
+        }
+
+        button {
+            width: 100%;
+            background-color: #6bbf59;
+            color: #ffffff;
+            font-size: 16px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #5aa24c;
+        }
+
+        .messages ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+
+        .messages li {
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .messages .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .messages .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
 </head>
 <body>
-    <h1>Feedback Form</h1>
+    <div class="container">
+        <h1>Feedback</h1>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul>
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+        <!-- Display flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="messages">
+                    <ul>
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endwith %}
 
-    <form method="POST" action="/feedback">
-        <label for="experience">Service Rating (1-5):</label>
-        <input type="radio" name="rating1" value="1"> 1
-        <input type="radio" name="rating1" value="2"> 2
-        <input type="radio" name="rating1" value="3"> 3
-        <input type="radio" name="rating1" value="4"> 4
-        <input type="radio" name="rating1" value="5"> 5
-        <br><br>
+        <form method="POST" action="/feedback">
+            <!-- Rating for website experience -->
+            <label for="rating1">How would you rate your website experience?</label>
+            <div class="rating-group">
+                <label>
+                    <input type="radio" name="rating1" value="1"> Very Poor
+                </label>
+                <label>
+                    <input type="radio" name="rating1" value="2"> Poor
+                </label>
+                <label>
+                    <input type="radio" name="rating1" value="3"> Medium
+                </label>
+                <label>
+                    <input type="radio" name="rating1" value="4"> Good
+                </label>
+                <label>
+                    <input type="radio" name="rating1" value="5"> Excellent
+                </label>
+            </div>
 
-        <label for="recommendation">Product Rating (1-5):</label>
-        <input type="radio" name="rating2" value="1"> 1
-        <input type="radio" name="rating2" value="2"> 2
-        <input type="radio" name="rating2" value="3"> 3
-        <input type="radio" name="rating2" value="4"> 4
-        <input type="radio" name="rating2" value="5"> 5
-        <br><br>
+            <!-- Rating for recommendation -->
+            <label for="rating2">Would you recommend us?</label>
+            <div class="rating-group">
+                <label>
+                    <input type="radio" name="rating2" value="1"> Very Unlikely
+                </label>
+                <label>
+                    <input type="radio" name="rating2" value="2"> Unlikely
+                </label>
+                <label>
+                    <input type="radio" name="rating2" value="3"> Maybe
+                </label>
+                <label>
+                    <input type="radio" name="rating2" value="4"> Likely
+                </label>
+                <label>
+                    <input type="radio" name="rating2" value="5"> Very Likely
+                </label>
+            </div>
 
-        <label for="suggestion">Feedback:</label>
-        <textarea name="feedback_text" id="feedback_text" rows="5" cols="40"></textarea>
-        <br><br>
+            <!-- Feedback text box -->
+            <label for="feedback_text">Any other feedback or suggestions?</label>
+            <textarea name="feedback_text" id="feedback_text" rows="4" required></textarea>
 
-        <button type="submit">Submit</button>
-    </form>
+            <!-- Submit button -->
+            <button type="submit">Submit</button>
+        </form>
+    </div>
 </body>
 </html>

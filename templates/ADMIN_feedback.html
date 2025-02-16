@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Feedback</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #1d4d4f;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #1d4d4f;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .actions textarea {
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px;
+            resize: none;
+        }
+
+        .actions button {
+            padding: 8px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-reply {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-reply:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-delete:hover {
+            background-color: #b02a37;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Customer Feedback</h1>
+        {% if feedback_list %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Question 1 (Experience)</th>
+                        <th>Question 2 (Recommendation)</th>
+                        <th>Question 3 (Feedback)</th>
+                        <th>Reply</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for feedback_id, feedback in feedback_list.items() %}
+                        <tr>
+                            <td>{{ feedback.rating1 }}/5</td>
+                            <td>{{ feedback.rating2 }}/5</td>
+                            <td>{{ feedback.feedback }}</td>
+                            <td>
+                                {% if feedback.reply %}
+                                    {{ feedback.reply }}
+                                {% else %}
+                                    No reply yet.
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    <!-- Reply Form -->
+                                    <form method="POST">
+                                        <input type="hidden" name="feedback_id" value="{{ feedback_id }}">
+                                        <textarea name="reply_text" rows="2" placeholder="Type your reply"></textarea>
+                                        <button type="submit" name="reply" class="btn-reply">Reply</button>
+                                    </form>
+
+                                    <!-- Delete Form -->
+                                    <form method="POST">
+                                        <input type="hidden" name="feedback_id" value="{{ feedback_id }}">
+                                        <button type="submit" name="delete" class="btn-delete">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No feedback available.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
