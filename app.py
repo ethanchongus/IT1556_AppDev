@@ -766,7 +766,7 @@ def rewards():
         'daily_points': user.daily_points,
         'streak': user.streak
     })
-
+#test
 
 @app.route('/rewards/earn', methods=['GET', 'POST'])
 def earn():
