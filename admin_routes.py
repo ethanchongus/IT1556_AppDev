@@ -133,7 +133,7 @@ def edit_payment(payment_id: str):
     payment = admin_payment_manager.get_payment_by_id(payment_id)
 
     if not payment:
-        flash("Payment record not found.")
+        flash("Payment record not found.","danger")
         return redirect(url_for('admin.admin_payments'))
 
     if request.method == 'POST':
@@ -162,7 +162,7 @@ def edit_payment(payment_id: str):
 
         # Update payment in database
         if admin_payment_manager.update_payment(payment_id, updated_data):
-            flash("Payment details updated successfully!")
+            flash("Payment details updated successfully!","success")
         else:
             flash("Failed to update payment details.", "danger")
 
@@ -179,7 +179,7 @@ def edit_payment(payment_id: str):
 def delete_payment(payment_id: str):
     """Delete a payment and archive it."""
     if admin_payment_manager.delete_payment(payment_id):
-        flash("Payment deleted successfully!")
+        flash("Payment deleted successfully!","info")
     else:
         flash("Failed to delete payment.", "danger")
 

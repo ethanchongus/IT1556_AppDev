@@ -3,12 +3,12 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h3>View Tours</h3>
+    <h1 class="mb-5">View Tours</h1>
     
     <div class="row">
         <!-- Sidebar Filter Section -->
-        <div class="col-md-3">
-            <h5>Filter by Country:</h5>
+        <div class="col-md-2">
+            <h5><i class="bi bi-filter"></i> Filter by Country:</h5>
             <form method="GET" action="{{ url_for('user_viewtours') }}">
                 <div class="form-check">
                     <input type="checkbox" class="form-check-input" id="all_countries" name="country" value="all"
@@ -28,7 +28,8 @@
         </div>
 
         <!-- Main Tour List Section -->
-        <div class="col-md-9">
+        <div class="col-md-10">
+            <h2>Tours Offered</h2>
             <table class="table table-striped">
                 <thead>
                     <tr>

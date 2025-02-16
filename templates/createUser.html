@@ -1,41 +1,45 @@
 {% extends "base_admin.html" %}
-{% block title %}Library Loan System - Create User{% endblock %}
+{% block title %} Create Staff User{% endblock %}
 
 {% block content %}
 {% from "includes/_formHelper.html" import render_field %}
-
-<h1 class="display-4">Create Staff Account</h1>
-
-<form method="POST" action="">
-  <div class="form-group">
-    {{ render_field(form.first_name, class="form-control") }}
-  </div>
-  <div class="form-group">
-    {{ render_field(form.last_name, class="form-control") }}
-  </div>
-  <div class="form-group">
-    {{ render_field(form.gender, class="form-control") }}
-  </div>
-  <div class="form-group">
-    {{ render_field(form.membership, class="form-check", style="list-style-type:none") }}
-  </div>
-  <div id="prof">
-    <div class="form-group">
-      {{ render_field(form.remarks, class="form-control") }}
+<div class="container mt-5">
+    <h1 class="display-4">Create Staff Account</h1>
+    <div class="p-5">
+        <form method="POST" action="">
+            <div class="form-group mb-3">
+                {{ render_field(form.first_name, class="form-control") }}
+            </div>
+            <div class="form-group  mb-3">
+                {{ render_field(form.last_name, class="form-control") }}
+            </div>
+            <div class="form-group mb-3">
+                {{ render_field(form.gender, class="form-control") }}
+            </div>
+            <div class="form-group mb-3">
+                {{ render_field(form.membership, class="form-check", style="list-style-type:none") }}
+            </div>
+            <div id="prof">
+                <div class="form-group mb-3">
+                    {{ render_field(form.remarks, class="form-control") }}
+                </div>
+                <div class="form-group mb-3">
+                    {{ render_field(form.number, class="form-control") }}
+                </div>
+                <div class="form-group mb-3">
+                    {{ render_field(form.email, class="form-control") }}
+                </div>
+                <div class="form-group mb-3">
+                    {{ render_field(form.password, class="form-control") }}
+                </div>
+                <div class="form-group mb-3">
+                    {{ render_field(form.confirm_password, class="form-control") }}
+                </div>
+            </div>
+            <input type="submit" value="Create Account" class="btn float-end btn-primary" />
+        </form>
     </div>
-    <div class="form-group">
-    {{ render_field(form.number, class="form-control") }}
-  </div>
-    <div class="form-group">
-    {{ render_field(form.email, class="form-control") }}
-  </div>
-        <div class="form-group">
-    {{ render_field(form.password, class="form-control") }}
-  </div>
-    <div class="form-group">
-          {{ render_field(form.confirm_password, class="form-control") }}
-        </div>
-  </div>
-  <input type="submit" value="Submit" class="btn btn-primary"/>
-</form>
+</div>
+
+
 {% endblock %}

@@ -2,26 +2,60 @@
 {% block title %}Invoice{% endblock %}
 
 {% block content %}
-<div class="container mx-auto py-8 max-w-lg">
-    <h1 class="text-xl font-bold mb-8">Invoice</h1>
+<div class="container mx-auto mt-5 py-8 max-w-lg">
+    <div class="text-center">
+        <h1 class="display-4">Thank You for Booking with <span class="text-success">EcoVentures</span>!</h1>
+        <p class="mt-4">Your eco-adventure is confirmed! We appreciate your commitment to sustainable travel and can't wait to take you on an unforgettable journey that supports conservation and protects our planet. </p>
+        
 
-    <p><strong>Invoice ID:</strong> {{ payment.id }}</p>
-    <p><strong>Name:</strong> {{ payment.name }}</p>
-    <p><strong>Email:</strong> {{ payment.email }}</p>
-    <p><strong>Card (Last 4 Digits):</strong> **** **** **** {{ payment.card_number }}</p>
-    <p><strong>Expiration Date:</strong> {{ payment.expiry_date }}</p>
+        <a href="{{ url_for('user_bookings') }}" class="btn mt-5 btn-success">
+           Continue to add passenger info <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    <div class="mt-5 p-5 card">
+        <div class="card-body">
+            <div class="d-flex w-100 align-items-center justify-content-between mb-5">
+                <img src="{{url_for('static', filename='media/logo_banner2.png')}}" width="30%">
+                <h1 class="text-xl display-4 mb-8">Invoice</h1>
+            </div>
+            
+            <p><strong>Invoice ID:</strong> {{ payment.id }}</p>
+            <p><strong>Customer Name:</strong> {{ payment.name }}</p>
+            <p><strong>Customer Email:</strong> {{ payment.email }}</p>
+            <p><strong>Card (Last 4 Digits):</strong> **** **** **** {{ payment.card_number }}</p>
+            <p><strong>Expiration Date:</strong> {{ payment.expiry_date }}</p>
 
-    <h2 class="text-lg font-semibold mt-6">Purchased Activities</h2>
-    <ul class="list-disc pl-5">
-        {% for item in payment.activities %}
-        <li>{{ item.name }} - SGD {{ item.price }} (x{{ item.quantity }})</li>
-        {% endfor %}
-    </ul>
+            <h3 class="text-lg font-semibold mt-5">Purchased Activities</h3>
+            <ul class="pl-5 list-group list-group-flush">
+                {% for item in payment.activities %}
+                <li class="list-group-item fs-4">
+                    <p>{{ item.name }}</p>
+                    <br>
+                    ({{ item.seats }} Seats) on {{item.departure_date}}
+                    <p>SGD {{ item.price }}</p>
+                </li>
+                {% endfor %}
+            </ul>
+        
+            <h4 class=" mt-4 float-end">Total: SGD {{ payment.total }}</h4>
+        </div>
 
-    <p class="font-bold mt-4">Total: SGD {{ payment.total }}</p>
+        
 
-    <a href="{{ url_for('user_bookings') }}" class="mt-6 inline-block bg-black text-white px-6 py-2 rounded hover:bg-gray-800">
-        Back to My Bookings
-    </a>    
+
+    </div>
+    
+    <br>
+    <script>
+        function printPage() {
+          window.print();
+        }
+        </script>
+
+    <button class="btn btn-outline-secondary" onclick="printPage()"><i class="bi bi-printer"></i> Print this page</button>
+    <button href="{{ url_for('user_bookings') }}" class="btn btn-outline-primary float-end">
+        View My Bookings
+    </button>
+      
 </div>
 {% endblock %}

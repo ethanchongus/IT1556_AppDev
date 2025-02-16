@@ -183,7 +183,7 @@ def checkout():
     cart = Cart(session)
     
     if cart.is_empty():
-        flash("Your cart is empty!")
+        flash("Your cart is empty!","danger")
         return redirect(url_for('payment.view_cart'))
 
     if request.method == 'POST':
@@ -258,7 +258,7 @@ def invoice(payment_id):
     payment = payment_manager.get_payment(payment_id)
     
     if not payment:
-        flash("Invoice not found.")
+        flash("Invoice not found.","danger")
         return redirect(url_for('payment.view_cart'))
 
     return render_template('customer/customer_invoice.html', payment=payment)
